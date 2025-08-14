@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoGuess: Country by City</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .settings-panel {
+            background-color: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .settings-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .settings-toggle {
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+        
+        .settings-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .setting-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .setting-group h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .checkbox-label {
+            display: block;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label input {
+            margin-right: 8px;
+        }
+        
+        .question-container {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .question-text {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option-btn {
+            background-color: white;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .option-btn.correct {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        .option-btn.incorrect {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .next-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .next-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .score-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #dfe6e9;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .map-container {
+            height: 200px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .map-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.3) 0%, rgba(46, 204, 113, 0.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .city-name {
+            font-weight: bold;
+            font-size: 2rem;
+        }
+        
+        .results-container {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .results-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .results-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+        }
+        
+        .restart-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .restart-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .input-answer-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .input-answer {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .input-answer:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .input-answer.invalid {
+            border-color: var(--accent-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #dfe6e9;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .autocomplete-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .timer-container {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .guesses-container {
+            margin: 20px 0;
+        }
+        
+        .guess-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .guess-correct {
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+        
+        .distance-indicator {
+            display: flex;
+            align-items: center;
+        }
+        
+        .distance-arrow {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 600px) {
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .question-text {
+                font-size: 1.4rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+            }
+            
+            .stat-box {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GeoGuess: Country by City</h1>
+            <div class="subtitle">Test your geography knowledge by identifying countries from their cities</div>
+        </header>
+        
+        <div class="game-container">
+            <div class="settings-panel">
+                <div class="settings-title">
+                    <span>Game Settings</span>
+                    <span class="settings-toggle">▼</span>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <h3>Region Filters</h3>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="europe" checked> Europe
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="asia" checked> Asia
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="africa" checked> Africa
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="americas" checked> Americas
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="oceania" checked> Oceania
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <h3>City Types</h3>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="capitals" checked> Capitals
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="major-cities" checked> Major Cities
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="popular-cities"> Popular Cities
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="auto-next"> Auto Next (1s delay)
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <h3>Difficulty</h3>
+                        <label class="checkbox-label">
+                            <input type="radio" name="difficulty" value="easy" checked> Easy (3 options)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="radio" name="difficulty" value="medium"> Medium (6 options)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="radio" name="difficulty" value="hard"> Hard (Type answer)
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <h3>Units</h3>
+                        <label class="checkbox-label">
+                            <input type="radio" name="units" value="km" checked> Kilometers
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="radio" name="units" value="miles"> Miles
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-value" id="correct-count">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="incorrect-count">0</div>
+                    <div class="stat-label">Incorrect</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="streak-count">0</div>
+                    <div class="stat-label">Current Streak</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="questions-count">0</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+            </div>
+            
+            <div class="timer-container">
+                Playtime: <span id="timer">00:00</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="map-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1200px-World_map_-_low_resolution.svg.png" alt="World Map">
+                <div class="map-overlay" id="map-overlay">
+                    <span class="city-name" id="display-city-name">World Map</span>
+                </div>
+            </div>
+            
+            <div id="quiz-container">
+                <div class="question-container">
+                    <div class="question-text" id="question-text">Which country is the city of <span id="city-name">Paris</span> located in?</div>
+                </div>
+                
+                <div class="guesses-container" id="guesses-container">
+                    <!-- Guesses will be displayed here -->
+                </div>
+                
+                <div id="input-container" class="hidden">
+                    <div class="input-answer-container">
+                        <input type="text" class="input-answer" id="input-answer" placeholder="Type the country name...">
+                        <div id="autocomplete-dropdown" class="autocomplete-dropdown hidden"></div>
+                    </div>
+                </div>
+                
+                <div class="options-container" id="options-container">
+                    <!-- Options will be generated here by JavaScript -->
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="next-btn" id="next-btn">Submit Answer</button>
+                </div>
+            </div>
+            
+            <div id="results-container" class="results-container hidden">
+                <div class="results-title">Session Summary</div>
+                <div class="results-score"><span id="final-score">0</span> Correct Answers</div>
+                <div class="stat-box" style="max-width: 300px; margin: 0 auto 20px;">
+                    <div class="stat-value" id="final-accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <button class="restart-btn" id="restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data with coordinates and popularity markers
+        const gameData = [
+            // Europe
+            {
+                city: "Paris",
+                country: "France",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 48.8566, lng: 2.3522 }
+            },
+            {
+                city: "Lyon",
+                country: "France",
+                isCapital: false,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 45.7640, lng: 4.8357 }
+            },
+            {
+                city: "Berlin",
+                country: "Germany",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 52.5200, lng: 13.4050 }
+            },
+            {
+                city: "Munich",
+                country: "Germany",
+                isCapital: false,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 48.1351, lng: 11.5820 }
+            },
+            {
+                city: "Rome",
+                country: "Italy",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 41.9028, lng: 12.4964 }
+            },
+            {
+                city: "Milan",
+                country: "Italy",
+                isCapital: false,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 45.4642, lng: 9.1900 }
+            },
+            {
+                city: "Madrid",
+                country: "Spain",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 40.4168, lng: -3.7038 }
+            },
+            {
+                city: "Barcelona",
+                country: "Spain",
+                isCapital: false,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 41.3851, lng: 2.1734 }
+            },
+            {
+                city: "London",
+                country: "United Kingdom",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 51.5074, lng: -0.1278 }
+            },
+            {
+                city: "Liverpool",
+                country: "United Kingdom",
+                isCapital: false,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 53.4084, lng: -2.9916 }
+            },
+            
+            // Asia
+            {
+                city: "Tokyo",
+                country: "Japan",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 35.6762, lng: 139.6503 }
+            },
+            {
+                city: "Kyoto",
+                country: "Japan",
+                isCapital: false,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 35.0116, lng: 135.7681 }
+            },
+            {
+                city: "Beijing",
+                country: "China",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 39.9042, lng: 116.4074 }
+            },
+            {
+                city: "Shanghai",
+                country: "China",
+                isCapital: false,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 31.2304, lng: 121.4737 }
+            },
+            {
+                city: "Delhi",
+                country: "India",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 28.7041, lng: 77.1025 }
+            },
+            {
+                city: "Mumbai",
+                country: "India",
+                isCapital: false,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 19.0760, lng: 72.8777 }
+            },
+            {
+                city: "Seoul",
+                country: "South Korea",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 37.5665, lng: 126.9780 }
+            },
+            {
+                city: "Busan",
+                country: "South Korea",
+                isCapital: false,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 35.1796, lng: 129.0756 }
+            },
+            
+            // Africa
+            {
+                city: "Cairo",
+                country: "Egypt",
+                isCapital: true,
+                isPopular: true,
+                region: "africa",
+                coordinates: { lat: 30.0444, lng: 31.2357 }
+            },
+            {
+                city: "Alexandria",
+                country: "Egypt",
+                isCapital: false,
+                isPopular: true,
+                region: "africa",
+                coordinates: { lat: 31.2001, lng: 29.9187 }
+            },
+            {
+                city: "Nairobi",
+                country: "Kenya",
+                isCapital: true,
+                isPopular: true,
+                region: "africa",
+                coordinates: { lat: -1.2864, lng: 36.8172 }
+            },
+            {
+                city: "Mombasa",
+                country: "Kenya",
+                isCapital: false,
+                isPopular: true,
+                region: "africa",
+                coordinates: { lat: -4.0435, lng: 39.6682 }
+            },
+            {
+                city: "Pretoria",
+                country: "South Africa",
+                isCapital: true,
+                isPopular: true,
+                region: "africa",
+                coordinates: { lat: -25.7479, lng: 28.2293 }
+            },
+            {
+                city: "Cape Town",
+                country: "South Africa",
+                isCapital: false,
+                isPopular: true,
+                region: "africa",
+                coordinates: { lat: -33.9249, lng: 18.4241 }
+            },
+            
+            // Americas
+            {
+                city: "Washington, D.C.",
+                country: "United States",
+                isCapital: true,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: 38.9072, lng: -77.0369 }
+            },
+            {
+                city: "New York",
+                country: "United States",
+                isCapital: false,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: 40.7128, lng: -74.0060 }
+            },
+            {
+                city: "Ottawa",
+                country: "Canada",
+                isCapital: true,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: 45.4215, lng: -75.6972 }
+            },
+            {
+                city: "Toronto",
+                country: "Canada",
+                isCapital: false,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: 43.6532, lng: -79.3832 }
+            },
+            {
+                city: "Buenos Aires",
+                country: "Argentina",
+                isCapital: true,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: -34.6037, lng: -58.3816 }
+            },
+            {
+                city: "Córdoba",
+                country: "Argentina",
+                isCapital: false,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: -31.4201, lng: -64.1888 }
+            },
+            {
+                city: "Brasília",
+                country: "Brazil",
+                isCapital: true,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: -15.8267, lng: -47.9218 }
+            },
+            {
+                city: "Rio de Janeiro",
+                country: "Brazil",
+                isCapital: false,
+                isPopular: true,
+                region: "americas",
+                coordinates: { lat: -22.9068, lng: -43.1729 }
+            },
+            
+            // Oceania
+            {
+                city: "Canberra",
+                country: "Australia",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -35.2809, lng: 149.1300 }
+            },
+            {
+                city: "Sydney",
+                country: "Australia",
+                isCapital: false,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -33.8688, lng: 151.2093 }
+            },
+            {
+                city: "Wellington",
+                country: "New Zealand",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -41.2865, lng: 174.7762 }
+            },
+            {
+                city: "Auckland",
+                country: "New Zealand",
+                isCapital: false,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -36.8485, lng: 174.7633 }
+            },
+            
+            // Less popular cities
+            {
+                city: "Lille",
+                country: "France",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 50.6292, lng: 3.0573 }
+            },
+            {
+                city: "Dresden",
+                country: "Germany",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 51.0504, lng: 13.7373 }
+            },
+            {
+                city: "Bologna",
+                country: "Italy",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 44.4949, lng: 11.3426 }
+            },
+            {
+                city: "Valencia",
+                country: "Spain",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 39.4699, lng: -0.3763 }
+            },
+            {
+                city: "Leeds",
+                country: "United Kingdom",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 53.8008, lng: -1.5491 }
+            }
+        ];
+
+        // Game state
+        let currentQuestion = 0;
+        let score = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let currentStreak = 0;
+        let maxStreak = 0;
+        let questionsCount = 0;
+        let questions = [];
+        let selectedRegions = ['europe', 'asia', 'africa', 'americas', 'oceania'];
+        let includeCapitals = true;
+        let includeMajorCities = true;
+        let includePopularCities = false;
+        let difficulty = 'easy';
+        let autoNext = false;
+        let useMiles = false;
+        let timerInterval;
+        let seconds = 0;
+        let correctCountriesForCurrentQuestion = [];
+        let allCountries = [];
+        let currentGuesses = [];
+        let maxGuesses = 6;
+        let currentQuestionData = null;
+        let validCountriesForCurrentQuestion = [];
+
+        // DOM elements
+        const questionText = document.getElementById('question-text');
+        const cityName = document.getElementById('city-name');
+        const displayCityName = document.getElementById('display-city-name');
+        const optionsContainer = document.getElementById('options-container');
+        const guessesContainer = document.getElementById('guesses-container');
+        const inputContainer = document.getElementById('input-container');
+        const inputAnswer = document.getElementById('input-answer');
+        const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+        const nextBtn = document.getElementById('next-btn');
+        const correctCountElement = document.getElementById('correct-count');
+        const incorrectCountElement = document.getElementById('incorrect-count');
+        const streakCountElement = document.getElementById('streak-count');
+        const questionsCountElement = document.getElementById('questions-count');
+        const progressBar = document.getElementById('progress-bar');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalAccuracyElement = document.getElementById('final-accuracy');
+        const restartBtn = document.getElementById('restart-btn');
+        const mapOverlay = document.getElementById('map-overlay');
+        const timerElement = document.getElementById('timer');
+        const settingsToggle = document.querySelector('.settings-toggle');
+        const settingsContent = document.querySelector('.settings-content');
+
+        // Event listeners
+        nextBtn.addEventListener('click', submitAnswer);
+        restartBtn.addEventListener('click', restartGame);
+        settingsToggle.addEventListener('click', toggleSettings);
+        inputAnswer.addEventListener('input', handleAutocomplete);
+        inputAnswer.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+        inputAnswer.addEventListener('focus', function() {
+            if (inputAnswer.value) {
+                handleAutocomplete();
+            }
+        });
+        inputAnswer.addEventListener('blur', function() {
+            setTimeout(() => {
+                autocompleteDropdown.classList.add('hidden');
+            }, 200);
+        });
+
+        // Settings checkboxes and radios
+        document.querySelectorAll('input[type="checkbox"][id^="europe"], input[type="checkbox"][id^="asia"], input[type="checkbox"][id^="africa"], input[type="checkbox"][id^="americas"], input[type="checkbox"][id^="oceania"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateRegionSettings);
+        });
+
+        document.getElementById('capitals').addEventListener('change', updateCityTypeSettings);
+        document.getElementById('major-cities').addEventListener('change', updateCityTypeSettings);
+        document.getElementById('popular-cities').addEventListener('change', updateCityTypeSettings);
+        document.getElementById('auto-next').addEventListener('change', updateAutoNextSetting);
+
+        document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+            radio.addEventListener('change', updateDifficultySettings);
+        });
+
+        document.querySelectorAll('input[name="units"]').forEach(radio => {
+            radio.addEventListener('change', updateUnitsSettings);
+        });
+
+        // Initialize game
+        function initGame() {
+            // Get all unique countries from game data
+            allCountries = [...new Set(gameData.map(item => item.country))];
+            
+            currentQuestion = 0;
+            score = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            currentStreak = 0;
+            maxStreak = 0;
+            questionsCount = 0;
+            seconds = 0;
+            currentGuesses = [];
+            
+            updateStats();
+            startTimer();
+            
+            filterQuestions();
+            showQuestion();
+            
+            quizContainer.classList.remove('hidden');
+            resultsContainer.classList.add('hidden');
+        }
+
+        // Filter questions based on current settings
+        function filterQuestions() {
+            // Get active regions
+            const activeRegions = [];
+            if (document.getElementById('europe').checked) activeRegions.push('europe');
+            if (document.getElementById('asia').checked) activeRegions.push('asia');
+            if (document.getElementById('africa').checked) activeRegions.push('africa');
+            if (document.getElementById('americas').checked) activeRegions.push('americas');
+            if (document.getElementById('oceania').checked) activeRegions.push('oceania');
+            
+            // Get active city types
+            const activeCityTypes = [];
+            if (document.getElementById('capitals').checked) activeCityTypes.push('capitals');
+            if (document.getElementById('major-cities').checked) activeCityTypes.push('major-cities');
+            if (document.getElementById('popular-cities').checked) activeCityTypes.push('popular-cities');
+            
+            // Filter questions
+            questions = gameData.filter(item => {
+                const regionMatch = activeRegions.length > 0 ? activeRegions.includes(item.region) : false;
+                const typeMatch = activeCityTypes.length > 0 ? 
+                    (activeCityTypes.includes('capitals') && item.isCapital) || 
+                    (activeCityTypes.includes('major-cities') && !item.isCapital && !item.isPopular) ||
+                    (activeCityTypes.includes('popular-cities') && item.isPopular) : false;
+                
+                return regionMatch && typeMatch;
+            });
+            
+            // If no questions match, reset filters to defaults
+            if (questions.length === 0) {
+                resetFilters();
+                filterQuestions();
+                return;
+            }
+            
+            // Shuffle questions
+            questions = shuffleArray(questions);
+        }
+
+        // Reset filters to defaults when no questions match
+        function resetFilters() {
+            document.getElementById('europe').checked = true;
+            document.getElementById('asia').checked = true;
+            document.getElementById('africa').checked = true;
+            document.getElementById('americas').checked = true;
+            document.getElementById('oceania').checked = true;
+            document.getElementById('capitals').checked = true;
+            document.getElementById('major-cities').checked = false;
+            document.getElementById('popular-cities').checked = true;
+            
+            selectedRegions = ['europe', 'asia', 'africa', 'americas', 'oceania'];
+            includeCapitals = true;
+            includeMajorCities = false;
+            includePopularCities = true;
+        }
+
+        // Start game timer
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                seconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Show current question
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                questions = shuffleArray(questions);
+                currentQuestion = 0;
+            }
+            
+            currentQuestionData = questions[currentQuestion];
+            cityName.textContent = currentQuestionData.city;
+            displayCityName.textContent = currentQuestionData.city;
+            
+            // Get all correct countries for this city
+            correctCountriesForCurrentQuestion = gameData
+                .filter(item => item.city === currentQuestionData.city)
+                .map(item => item.country);
+            
+            // For hard mode, get all valid countries that could be options
+            validCountriesForCurrentQuestion = [...new Set(gameData.map(item => item.country))];
+            
+            // Clear previous options and guesses
+            optionsContainer.innerHTML = '';
+            guessesContainer.innerHTML = '';
+            inputContainer.classList.add('hidden');
+            inputAnswer.value = '';
+            currentGuesses = [];
+            
+            if (difficulty === 'hard') {
+                inputContainer.classList.remove('hidden');
+                inputAnswer.focus();
+            } else {
+                let options = getOptions(currentQuestionData);
+                
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.addEventListener('click', () => selectOption(option));
+                    optionsContainer.appendChild(button);
+                });
+            }
+            
+            nextBtn.textContent = currentGuesses.length === 0 ? "Submit First Guess" : "Submit Answer";
+            nextBtn.disabled = true;
+        }
+
+        // Get options for current question
+        function getOptions(question) {
+            let options = [...correctCountriesForCurrentQuestion]; // Start with all correct answers
+            
+            let allCountries = [...new Set(gameData.map(item => item.country))];
+            
+            // Remove correct answers from all countries
+            allCountries = allCountries.filter(country => !correctCountriesForCurrentQuestion.includes(country));
+            
+            // Get incorrect options based on difficulty
+            let incorrectOptionsNeeded;
+            if (difficulty === 'easy') {
+                incorrectOptionsNeeded = Math.max(0, 3 - options.length); // Total 3 options
+            } else { // medium
+                incorrectOptionsNeeded = Math.max(0, 6 - options.length); // Total 6 options
+            }
+            
+            // Get random incorrect options
+            const incorrectOptions = shuffleArray(allCountries).slice(0, incorrectOptionsNeeded);
+            
+            // Combine and shuffle options
+            options = shuffleArray([...options, ...incorrectOptions]);
+            
+            return options;
+        }
+
+        // Handle autocomplete for hard mode
+        function handleAutocomplete() {
+            const input = inputAnswer.value.toLowerCase();
+            autocompleteDropdown.innerHTML = '';
+            
+            if (!input) {
+                autocompleteDropdown.classList.add('hidden');
+                nextBtn.disabled = true;
+                inputAnswer.classList.remove('invalid');
+                return;
+            }
+            
+            const matches = validCountriesForCurrentQuestion.filter(country => 
+                country.toLowerCase().includes(input)
+            ).slice(0, 5); // Limit to 5 suggestions
+            
+            if (matches.length === 0) {
+                autocompleteDropdown.classList.add('hidden');
+                inputAnswer.classList.add('invalid');
+                nextBtn.disabled = true;
+                return;
+            }
+            
+            matches.forEach(match => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = match;
+                item.addEventListener('click', () => {
+                    inputAnswer.value = match;
+                    autocompleteDropdown.classList.add('hidden');
+                    inputAnswer.classList.remove('invalid');
+                    nextBtn.disabled = false;
+                });
+                autocompleteDropdown.appendChild(item);
+            });
+            
+            autocompleteDropdown.classList.remove('hidden');
+            inputAnswer.classList.remove('invalid');
+            nextBtn.disabled = false;
+        }
+
+        // Handle option selection (for multiple choice)
+        function selectOption(selectedOption) {
+            // Only allow selection of valid options
+            const validOptions = [...correctCountriesForCurrentQuestion, ...getIncorrectOptions()];
+            if (validOptions.includes(selectedOption)) {
+                nextBtn.disabled = false;
+                currentGuesses = [selectedOption];
+            }
+        }
+
+        // Get incorrect options for current question
+        function getIncorrectOptions() {
+            let allCountries = [...new Set(gameData.map(item => item.country))];
+            return allCountries.filter(country => !correctCountriesForCurrentQuestion.includes(country));
+        }
+
+        // Submit answer (for both multiple choice and input)
+        function submitAnswer() {
+            let userAnswer;
+            
+            if (difficulty === 'hard') {
+                userAnswer = inputAnswer.value.trim();
+                if (!userAnswer) return;
+                
+                // Validate input against all possible countries (case insensitive)
+                const matchedCountry = validCountriesForCurrentQuestion.find(country => 
+                    country.toLowerCase() === userAnswer.toLowerCase()
+                );
+                
+                if (!matchedCountry) {
+                    // Invalid country entered
+                    inputAnswer.classList.add('invalid');
+                    return;
+                }
+                
+                // Use the properly capitalized version
+                userAnswer = matchedCountry;
+            } else {
+                if (currentGuesses.length === 0) return;
+                userAnswer = currentGuesses[0];
+            }
+            
+            // Check if answer is correct (case insensitive)
+            const isCorrect = correctCountriesForCurrentQuestion.some(country => 
+                country.toLowerCase() === userAnswer.toLowerCase()
+            );
+            
+            // Add to guesses (using properly capitalized version)
+            const correctCaseAnswer = correctCountriesForCurrentQuestion.find(country => 
+                country.toLowerCase() === userAnswer.toLowerCase()
+            ) || userAnswer;
+            
+            currentGuesses.push(correctCaseAnswer);
+            
+            // Calculate distance for incorrect guesses
+            let distance = null;
+            if (!isCorrect) {
+                const guessedCountryData = gameData.find(item => 
+                    item.country.toLowerCase() === userAnswer.toLowerCase() && 
+                    item.city !== currentQuestionData.city
+                );
+                
+                if (guessedCountryData) {
+                    distance = calculateDistance(
+                        currentQuestionData.coordinates.lat,
+                        currentQuestionData.coordinates.lng,
+                        guessedCountryData.coordinates.lat,
+                        guessedCountryData.coordinates.lng
+                    );
+                    
+                    if (useMiles) {
+                        distance = kilometersToMiles(distance);
+                    }
+                }
+            }
+            
+            // Display guess
+            displayGuess(correctCaseAnswer, isCorrect, distance);
+            
+            // Update game state if correct or max guesses reached
+            if (isCorrect || currentGuesses.length >= maxGuesses + 1) {
+                updateGameState(isCorrect);
+                
+                if (autoNext) {
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 1000);
+                } else {
+                    nextBtn.textContent = "Next Question";
+                    nextBtn.disabled = false;
+                }
+            } else {
+                if (difficulty === 'hard') {
+                    inputAnswer.value = '';
+                    inputAnswer.focus();
+                }
+                nextBtn.textContent = `Submit Guess ${currentGuesses.length + 1}/${maxGuesses + 1}`;
+                nextBtn.disabled = true;
+            }
+        }
+
+        // Display a guess with distance indicator
+        function displayGuess(country, isCorrect, distance) {
+            const guessElement = document.createElement('div');
+            guessElement.className = `guess-item ${isCorrect ? 'guess-correct' : ''}`;
+            
+            const countryElement = document.createElement('div');
+            countryElement.textContent = country;
+            
+            const distanceElement = document.createElement('div');
+            distanceElement.className = 'distance-indicator';
+            
+            if (isCorrect) {
+                distanceElement.textContent = 'Correct!';
+            } else if (distance !== null) {
+                const arrow = getDirectionArrow(
+                    currentQuestionData.coordinates.lat,
+                    currentQuestionData.coordinates.lng,
+                    gameData.find(item => item.country.toLowerCase() === country.toLowerCase() && item.city !== currentQuestionData.city).coordinates.lat,
+                    gameData.find(item => item.country.toLowerCase() === country.toLowerCase() && item.city !== currentQuestionData.city).coordinates.lng
+                );
+                
+                const distanceText = useMiles ? 
+                    `${Math.round(distance)} miles` : 
+                    `${Math.round(distance)} km`;
+                
+                distanceElement.innerHTML = `
+                    <span class="distance-arrow">${arrow}</span>
+                    <span>${distanceText}</span>
+                `;
+            } else {
+                distanceElement.textContent = 'Unknown distance';
+            }
+            
+            guessElement.appendChild(countryElement);
+            guessElement.appendChild(distanceElement);
+            guessesContainer.appendChild(guessElement);
+        }
+
+        // Calculate distance between two points in km
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Convert kilometers to miles
+        function kilometersToMiles(km) {
+            return km * 0.621371;
+        }
+
+        // Get direction arrow based on coordinates
+        function getDirectionArrow(lat1, lon1, lat2, lon2) {
+            const angle = Math.atan2(lat2 - lat1, lon2 - lon1) * 180 / Math.PI;
+            
+            if (angle >= -22.5 && angle < 22.5) return '→';
+            if (angle >= 22.5 && angle < 67.5) return '↗';
+            if (angle >= 67.5 && angle < 112.5) return '↑';
+            if (angle >= 112.5 && angle < 157.5) return '↖';
+            if (angle >= 157.5 || angle < -157.5) return '←';
+            if (angle >= -157.5 && angle < -112.5) return '↙';
+            if (angle >= -112.5 && angle < -67.5) return '↓';
+            if (angle >= -67.5 && angle < -22.5) return '↘';
+            
+            return '→';
+        }
+
+        // Move to next question
+        function nextQuestion() {
+            currentQuestion++;
+            showQuestion();
+            
+            // Reset input styling
+            inputAnswer.classList.remove('invalid');
+            inputAnswer.style.borderColor = '#dfe6e9';
+            inputAnswer.style.backgroundColor = 'white';
+            autocompleteDropdown.classList.add('hidden');
+            
+            // Update button text
+            nextBtn.textContent = difficulty === 'hard' ? "Submit Answer" : "Submit First Guess";
+            nextBtn.disabled = true;
+        }
+
+        // Update game state after answer
+        function updateGameState(isCorrect) {
+            questionsCount++;
+            
+            if (isCorrect) {
+                score++;
+                correctCount++;
+                currentStreak++;
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak;
+                }
+            } else {
+                incorrectCount++;
+                currentStreak = 0;
+            }
+            
+            updateStats();
+        }
+
+        // Update statistics display
+        function updateStats() {
+            correctCountElement.textContent = correctCount;
+            incorrectCountElement.textContent = incorrectCount;
+            streakCountElement.textContent = currentStreak;
+            questionsCountElement.textContent = questionsCount;
+        }
+
+        // End game and show results
+        function endGame() {
+            clearInterval(timerInterval);
+            
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            finalScoreElement.textContent = correctCount;
+            
+            const accuracy = questionsCount > 0 ? Math.round((correctCount / questionsCount) * 100) : 0;
+            finalAccuracyElement.textContent = `${accuracy}%`;
+        }
+
+        // Restart game
+        function restartGame() {
+            endGame();
+            initGame();
+        }
+
+        // Toggle settings visibility
+        function toggleSettings() {
+            if (settingsContent.style.display === 'none' || !settingsContent.style.display) {
+                settingsContent.style.display = 'flex';
+                settingsToggle.textContent = '▲';
+            } else {
+                settingsContent.style.display = 'none';
+                settingsToggle.textContent = '▼';
+            }
+        }
+
+        // Update region settings
+        function updateRegionSettings() {
+            const regionCheckboxes = [
+                document.getElementById('europe'),
+                document.getElementById('asia'),
+                document.getElementById('africa'),
+                document.getElementById('americas'),
+                document.getElementById('oceania')
+            ];
+            
+            // Count checked regions
+            const checkedCount = regionCheckboxes.filter(cb => cb.checked).length;
+            
+            // Prevent unchecking the last one
+            if (checkedCount === 0) {
+                const checkbox = event.target;
+                checkbox.checked = true;
+                return;
+            }
+            
+            selectedRegions = [];
+            if (document.getElementById('europe').checked) selectedRegions.push('europe');
+            if (document.getElementById('asia').checked) selectedRegions.push('asia');
+            if (document.getElementById('africa').checked) selectedRegions.push('africa');
+            if (document.getElementById('americas').checked) selectedRegions.push('americas');
+            if (document.getElementById('oceania').checked) selectedRegions.push('oceania');
+            
+            // Refresh questions with new filters
+            filterQuestions();
+            currentQuestion = 0;
+            showQuestion();
+        }
+
+        // Update city type settings
+        function updateCityTypeSettings() {
+            const capitalsChecked = document.getElementById('capitals').checked;
+            const majorCitiesChecked = document.getElementById('major-cities').checked;
+            const popularCitiesChecked = document.getElementById('popular-cities').checked;
+            
+            // Prevent unchecking all
+            if (!capitalsChecked && !majorCitiesChecked && !popularCitiesChecked) {
+                const checkbox = event.target;
+                checkbox.checked = true;
+                return;
+            }
+            
+            includeCapitals = capitalsChecked;
+            includeMajorCities = majorCitiesChecked;
+            includePopularCities = popularCitiesChecked;
+            
+            // Refresh questions with new filters
+            filterQuestions();
+            currentQuestion = 0;
+            showQuestion();
+        }
+
+        // Update auto-next setting
+        function updateAutoNextSetting() {
+            autoNext = document.getElementById('auto-next').checked;
+        }
+
+        // Update difficulty settings
+        function updateDifficultySettings() {
+            difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            currentQuestion = 0;
+            showQuestion();
+        }
+
+        // Update units settings
+        function updateUnitsSettings() {
+            useMiles = document.querySelector('input[name="units"]:checked').value === 'miles';
+        }
+
+        // Utility function to shuffle array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
