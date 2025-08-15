@@ -154,6 +154,12 @@
             border-color: var(--primary-color);
         }
         
+        .option-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
         .option-btn.correct {
             background-color: var(--secondary-color);
             color: white;
@@ -400,6 +406,12 @@
             font-size: 1.2rem;
         }
         
+        .correct-answer {
+            font-weight: bold;
+            margin-top: 10px;
+            color: var(--secondary-color);
+        }
+        
         @media (max-width: 600px) {
             .options-container {
                 grid-template-columns: 1fr;
@@ -458,6 +470,9 @@
                     <div class="setting-group">
                         <h3>City Types</h3>
                         <label class="checkbox-label">
+                            <input type="checkbox" id="all-cities" checked> All Cities
+                        </label>
+                        <label class="checkbox-label">
                             <input type="checkbox" id="capitals" checked> Capitals
                         </label>
                         <label class="checkbox-label">
@@ -466,29 +481,20 @@
                         <label class="checkbox-label">
                             <input type="checkbox" id="popular-cities"> Popular Cities
                         </label>
+                    </div>
+                    <div class="setting-group">
+                        <h3>Game Mode</h3>
+                        <label class="checkbox-label">
+                            <input type="radio" name="mode" value="options" checked> Options (6 choices)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="radio" name="mode" value="typing"> Typing (type the answer)
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <h3>Options</h3>
                         <label class="checkbox-label">
                             <input type="checkbox" id="auto-next"> Auto Next (1s delay)
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <h3>Difficulty</h3>
-                        <label class="checkbox-label">
-                            <input type="radio" name="difficulty" value="easy" checked> Easy (3 options)
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="radio" name="difficulty" value="medium"> Medium (6 options)
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="radio" name="difficulty" value="hard"> Hard (Type answer)
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <h3>Units</h3>
-                        <label class="checkbox-label">
-                            <input type="radio" name="units" value="km" checked> Kilometers
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="radio" name="units" value="miles"> Miles
                         </label>
                     </div>
                 </div>
@@ -548,6 +554,10 @@
                     <!-- Options will be generated here by JavaScript -->
                 </div>
                 
+                <div id="correct-answer-container" class="correct-answer hidden">
+                    <!-- Correct answer will be displayed here -->
+                </div>
+                
                 <div style="text-align: center;">
                     <button class="next-btn" id="next-btn">Submit Answer</button>
                 </div>
@@ -566,91 +576,80 @@
     </div>
 
     <script>
-        // Game data with coordinates and popularity markers
+        // Sample game data with coordinates and popularity markers
         const gameData = [
-            // Europe
-            {
-                city: "Paris",
-                country: "France",
-                isCapital: true,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 48.8566, lng: 2.3522 }
-            },
-            {
-                city: "Lyon",
-                country: "France",
+             {
+                city: "Basra",
+                country: "Iraq",
                 isCapital: false,
                 isPopular: true,
-                region: "europe",
-                coordinates: { lat: 45.7640, lng: 4.8357 }
+                region: "asia",
+                coordinates: { lat: 30.5150, lng: 47.8100 }
             },
             {
-                city: "Berlin",
-                country: "Germany",
+                city: "Erbil",
+                country: "Iraq",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 36.1911, lng: 44.0092 }
+            },
+            {
+                city: "Mosul",
+                country: "Iraq",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 36.3400, lng: 43.1300 }
+            },
+            {
+                city: "Najaf",
+                country: "Iraq",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 32.0290, lng: 44.3396 }
+            },
+            {
+                city: "Jerusalem",
+                country: "Israel",
                 isCapital: true,
                 isPopular: true,
-                region: "europe",
-                coordinates: { lat: 52.5200, lng: 13.4050 }
+                region: "asia",
+                coordinates: { lat: 31.7784, lng: 35.2066 }
             },
             {
-                city: "Munich",
-                country: "Germany",
+                city: "Tel Aviv",
+                country: "Israel",
                 isCapital: false,
                 isPopular: true,
-                region: "europe",
-                coordinates: { lat: 48.1351, lng: 11.5820 }
+                region: "asia",
+                coordinates: { lat: 32.0853, lng: 34.7818 }
             },
             {
-                city: "Rome",
-                country: "Italy",
-                isCapital: true,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 41.9028, lng: 12.4964 }
-            },
-            {
-                city: "Milan",
-                country: "Italy",
+                city: "Haifa",
+                country: "Israel",
                 isCapital: false,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 45.4642, lng: 9.1900 }
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 32.8192, lng: 34.9992 }
             },
             {
-                city: "Madrid",
-                country: "Spain",
-                isCapital: true,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 40.4168, lng: -3.7038 }
-            },
-            {
-                city: "Barcelona",
-                country: "Spain",
+                city: "Beersheba",
+                country: "Israel",
                 isCapital: false,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 41.3851, lng: 2.1734 }
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 31.2589, lng: 34.7997 }
             },
             {
-                city: "London",
-                country: "United Kingdom",
-                isCapital: true,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 51.5074, lng: -0.1278 }
-            },
-            {
-                city: "Liverpool",
-                country: "United Kingdom",
+                city: "Eilat",
+                country: "Israel",
                 isCapital: false,
-                isPopular: true,
-                region: "europe",
-                coordinates: { lat: 53.4084, lng: -2.9916 }
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 29.5577, lng: 34.9519 }
             },
-            
-            // Asia
             {
                 city: "Tokyo",
                 country: "Japan",
@@ -658,6 +657,14 @@
                 isPopular: true,
                 region: "asia",
                 coordinates: { lat: 35.6762, lng: 139.6503 }
+            },
+            {
+                city: "Osaka",
+                country: "Japan",
+                isCapital: false,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 34.6937, lng: 135.5023 }
             },
             {
                 city: "Kyoto",
@@ -668,36 +675,516 @@
                 coordinates: { lat: 35.0116, lng: 135.7681 }
             },
             {
-                city: "Beijing",
-                country: "China",
+                city: "Yokohama",
+                country: "Japan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 35.4437, lng: 139.6380 }
+            },
+            {
+                city: "Sapporo",
+                country: "Japan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 43.0618, lng: 141.3545 }
+            },
+            {
+                city: "Amman",
+                country: "Jordan",
                 isCapital: true,
                 isPopular: true,
                 region: "asia",
-                coordinates: { lat: 39.9042, lng: 116.4074 }
+                coordinates: { lat: 31.9454, lng: 35.9284 }
             },
             {
-                city: "Shanghai",
-                country: "China",
+                city: "Aqaba",
+                country: "Jordan",
                 isCapital: false,
-                isPopular: true,
+                isPopular: false,
                 region: "asia",
-                coordinates: { lat: 31.2304, lng: 121.4737 }
+                coordinates: { lat: 29.5319, lng: 35.0061 }
             },
             {
-                city: "Delhi",
-                country: "India",
+                city: "Irbid",
+                country: "Jordan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 32.5556, lng: 35.8500 }
+            },
+            {
+                city: "Zarqa",
+                country: "Jordan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 32.0833, lng: 36.1000 }
+            },
+            {
+                city: "Petra",
+                country: "Jordan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 30.3286, lng: 35.4422 }
+            },
+            {
+                city: "Astana",
+                country: "Kazakhstan",
                 isCapital: true,
                 isPopular: true,
                 region: "asia",
-                coordinates: { lat: 28.7041, lng: 77.1025 }
+                coordinates: { lat: 51.1605, lng: 71.4704 }
             },
             {
-                city: "Mumbai",
-                country: "India",
+                city: "Almaty",
+                country: "Kazakhstan",
                 isCapital: false,
                 isPopular: true,
                 region: "asia",
-                coordinates: { lat: 19.0760, lng: 72.8777 }
+                coordinates: { lat: 43.2220, lng: 76.8512 }
+            },
+            {
+                city: "Shymkent",
+                country: "Kazakhstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 42.3000, lng: 69.6000 }
+            },
+            {
+                city: "Karaganda",
+                country: "Kazakhstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 49.8000, lng: 73.1167 }
+            },
+            {
+                city: "Aktobe",
+                country: "Kazakhstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 50.2833, lng: 57.1667 }
+            },
+            {
+                city: "Kuwait City",
+                country: "Kuwait",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 29.3759, lng: 47.9774 }
+            },
+            {
+                city: "Al Ahmadi",
+                country: "Kuwait",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 29.0769, lng: 48.0839 }
+            },
+            {
+                city: "Hawalli",
+                country: "Kuwait",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 29.3333, lng: 48.0833 }
+            },
+            {
+                city: "Farwaniya",
+                country: "Kuwait",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 29.2775, lng: 47.9586 }
+            },
+            {
+                city: "Jahra",
+                country: "Kuwait",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 29.3375, lng: 47.6581 }
+            },
+            {
+                city: "Bishkek",
+                country: "Kyrgyzstan",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 42.8747, lng: 74.6122 }
+            },
+            {
+                city: "Osh",
+                country: "Kyrgyzstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 40.5333, lng: 72.7833 }
+            },
+            {
+                city: "Jalal-Abad",
+                country: "Kyrgyzstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 40.9333, lng: 72.9833 }
+            },
+            {
+                city: "Karakol",
+                country: "Kyrgyzstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 42.4833, lng: 78.4000 }
+            },
+            {
+                city: "Naryn",
+                country: "Kyrgyzstan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 41.4333, lng: 76.0000 }
+            },
+            {
+                city: "Vientiane",
+                country: "Laos",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 17.9667, lng: 102.6000 }
+            },
+            {
+                city: "Luang Prabang",
+                country: "Laos",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 19.8833, lng: 102.1333 }
+            },
+            {
+                city: "Savannakhet",
+                country: "Laos",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 16.5500, lng: 104.7500 }
+            },
+            {
+                city: "Pakse",
+                country: "Laos",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 15.1167, lng: 105.7833 }
+            },
+            {
+                city: "Thakhek",
+                country: "Laos",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 17.4000, lng: 104.8000 }
+            },
+            {
+                city: "Beirut",
+                country: "Lebanon",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 33.8938, lng: 35.5018 }
+            },
+            {
+                city: "Tripoli",
+                country: "Lebanon",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 34.4333, lng: 35.8333 }
+            },
+            {
+                city: "Sidon",
+                country: "Lebanon",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 33.5606, lng: 35.3758 }
+            },
+            {
+                city: "Tyre",
+                country: "Lebanon",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 33.2667, lng: 35.2000 }
+            },
+            {
+                city: "Byblos",
+                country: "Lebanon",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 34.1167, lng: 35.6500 }
+            },
+            {
+                city: "Kuala Lumpur",
+                country: "Malaysia",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 3.1390, lng: 101.6869 }
+            },
+            {
+                city: "George Town",
+                country: "Malaysia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 5.4145, lng: 100.3292 }
+            },
+            {
+                city: "Ipoh",
+                country: "Malaysia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 4.6000, lng: 101.0700 }
+            },
+            {
+                city: "Johor Bahru",
+                country: "Malaysia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 1.4556, lng: 103.7611 }
+            },
+            {
+                city: "Kuching",
+                country: "Malaysia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 1.5397, lng: 110.3542 }
+            },
+            {
+                city: "Male",
+                country: "Maldives",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 4.1750, lng: 73.5083 }
+            },
+            {
+                city: "Addu City",
+                country: "Maldives",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: -0.6000, lng: 73.1000 }
+            },
+            {
+                city: "Fuvahmulah",
+                country: "Maldives",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: -0.3000, lng: 73.4333 }
+            },
+            {
+                city: "Ulaanbaatar",
+                country: "Mongolia",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 47.9214, lng: 106.9055 }
+            },
+            {
+                city: "Erdenet",
+                country: "Mongolia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 49.0278, lng: 104.0444 }
+            },
+            {
+                city: "Darkhan",
+                country: "Mongolia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 49.4667, lng: 105.9667 }
+            },
+            {
+                city: "Yangon",
+                country: "Myanmar",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 16.7950, lng: 96.1600 }
+            },
+            {
+                city: "Mandalay",
+                country: "Myanmar",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 21.9831, lng: 96.0844 }
+            },
+            {
+                city: "Naypyidaw",
+                country: "Myanmar",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 19.7475, lng: 96.1150 }
+            },
+            {
+                city: "Kathmandu",
+                country: "Nepal",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 27.7167, lng: 85.3667 }
+            },
+            {
+                city: "Pokhara",
+                country: "Nepal",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 28.2097, lng: 83.9856 }
+            },
+            {
+                city: "Pyongyang",
+                country: "North Korea",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 39.0194, lng: 125.7381 }
+            },
+            {
+                city: "Hamhung",
+                country: "North Korea",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 39.9167, lng: 127.5333 }
+            },
+            {
+                city: "Muscat",
+                country: "Oman",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 23.6139, lng: 58.5922 }
+            },
+            {
+                city: "Salalah",
+                country: "Oman",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 17.0151, lng: 54.0924 }
+            },
+            {
+                city: "Islamabad",
+                country: "Pakistan",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 33.6844, lng: 73.0479 }
+            },
+            {
+                city: "Karachi",
+                country: "Pakistan",
+                isCapital: false,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 24.8600, lng: 67.0100 }
+            },
+            {
+                city: "Lahore",
+                country: "Pakistan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 31.5497, lng: 74.3436 }
+            },
+            {
+                city: "Faisalabad",
+                country: "Pakistan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 31.4180, lng: 73.0790 }
+            },
+            {
+                city: "Rawalpindi",
+                country: "Pakistan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 33.6007, lng: 73.0679 }
+            },
+            {
+                city: "Manila",
+                country: "Philippines",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 14.5958, lng: 120.9772 }
+            },
+            {
+                city: "Cebu City",
+                country: "Philippines",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 10.2930, lng: 123.9020 }
+            },
+            {
+                city: "Doha",
+                country: "Qatar",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 25.2769, lng: 51.5200 }
+            },
+            {
+                city: "Al Wakrah",
+                country: "Qatar",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 25.1714, lng: 51.6036 }
+            },
+            {
+                city: "Riyadh",
+                country: "Saudi Arabia",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 24.7136, lng: 46.6753 }
+            },
+            {
+                city: "Jeddah",
+                country: "Saudi Arabia",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 21.5433, lng: 39.1728 }
+            },
+            {
+                city: "Singapore",
+                country: "Singapore",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 1.3521, lng: 103.8198 }
             },
             {
                 city: "Seoul",
@@ -711,127 +1198,1153 @@
                 city: "Busan",
                 country: "South Korea",
                 isCapital: false,
-                isPopular: true,
+                isPopular: false,
                 region: "asia",
                 coordinates: { lat: 35.1796, lng: 129.0756 }
             },
-            
-            // Africa
             {
-                city: "Cairo",
-                country: "Egypt",
+                city: "Colombo",
+                country: "Sri Lanka",
                 isCapital: true,
                 isPopular: true,
-                region: "africa",
-                coordinates: { lat: 30.0444, lng: 31.2357 }
+                region: "asia",
+                coordinates: { lat: 6.9344, lng: 79.8428 }
             },
             {
-                city: "Alexandria",
-                country: "Egypt",
+                city: "Kandy",
+                country: "Sri Lanka",
                 isCapital: false,
-                isPopular: true,
-                region: "africa",
-                coordinates: { lat: 31.2001, lng: 29.9187 }
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 7.2964, lng: 80.6350 }
             },
             {
-                city: "Nairobi",
-                country: "Kenya",
+                city: "Damascus",
+                country: "Syria",
                 isCapital: true,
                 isPopular: true,
-                region: "africa",
-                coordinates: { lat: -1.2864, lng: 36.8172 }
+                region: "asia",
+                coordinates: { lat: 33.5131, lng: 36.2919 }
             },
             {
-                city: "Mombasa",
-                country: "Kenya",
+                city: "Aleppo",
+                country: "Syria",
                 isCapital: false,
-                isPopular: true,
-                region: "africa",
-                coordinates: { lat: -4.0435, lng: 39.6682 }
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 36.2000, lng: 37.1600 }
             },
             {
-                city: "Pretoria",
-                country: "South Africa",
+                city: "Taipei",
+                country: "Taiwan",
                 isCapital: true,
                 isPopular: true,
-                region: "africa",
-                coordinates: { lat: -25.7479, lng: 28.2293 }
+                region: "asia",
+                coordinates: { lat: 25.0330, lng: 121.5654 }
             },
             {
-                city: "Cape Town",
-                country: "South Africa",
+                city: "Kaohsiung",
+                country: "Taiwan",
                 isCapital: false,
-                isPopular: true,
-                region: "africa",
-                coordinates: { lat: -33.9249, lng: 18.4241 }
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 22.6333, lng: 120.2667 }
             },
-            
-            // Americas
             {
-                city: "Washington, D.C.",
-                country: "United States",
+                city: "Dushanbe",
+                country: "Tajikistan",
                 isCapital: true,
                 isPopular: true,
-                region: "americas",
-                coordinates: { lat: 38.9072, lng: -77.0369 }
+                region: "asia",
+                coordinates: { lat: 38.5737, lng: 68.7738 }
             },
             {
-                city: "New York",
-                country: "United States",
+                city: "Khujand",
+                country: "Tajikistan",
                 isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 40.2833, lng: 69.6167 }
+            },
+            {
+                city: "Bangkok",
+                country: "Thailand",
+                isCapital: true,
                 isPopular: true,
-                region: "americas",
-                coordinates: { lat: 40.7128, lng: -74.0060 }
+                region: "asia",
+                coordinates: { lat: 13.7563, lng: 100.5018 }
+            },
+            {
+                city: "Chiang Mai",
+                country: "Thailand",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 18.7953, lng: 98.9986 }
+            },
+            {
+                city: "Ashgabat",
+                country: "Turkmenistan",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 37.9500, lng: 58.3833 }
+            },
+            {
+                city: "Turkmenabat",
+                country: "Turkmenistan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 39.0833, lng: 63.5667 }
+            },
+            {
+                city: "Abu Dhabi",
+                country: "UAE",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 24.4667, lng: 54.3667 }
+            },
+            {
+                city: "Dubai",
+                country: "UAE",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 25.2697, lng: 55.3094 }
+            },
+            {
+                city: "Tashkent",
+                country: "Uzbekistan",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 41.3000, lng: 69.2500 }
+            },
+            {
+                city: "Samarkand",
+                country: "Uzbekistan",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 39.6542, lng: 66.9597 }
+            },
+            {
+                city: "Hanoi",
+                country: "Vietnam",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 21.0285, lng: 105.8542 }
+            },
+            {
+                city: "Ho Chi Minh City",
+                country: "Vietnam",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 10.7756, lng: 106.7019 }
+            },
+            {
+                city: "Sana'a",
+                country: "Yemen",
+                isCapital: true,
+                isPopular: true,
+                region: "asia",
+                coordinates: { lat: 15.3500, lng: 44.2000 }
+            },
+            {
+                city: "Aden",
+                country: "Yemen",
+                isCapital: false,
+                isPopular: false,
+                region: "asia",
+                coordinates: { lat: 12.8000, lng: 45.0333 }
+            },
+
+            // Europe
+            {
+                city: "Tirana",
+                country: "Albania",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 41.3275, lng: 19.8189 }
+            },
+            {
+                city: "Durrës",
+                country: "Albania",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 41.3167, lng: 19.4500 }
+            },
+            {
+                city: "Andorra la Vella",
+                country: "Andorra",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 42.5075, lng: 1.5218 }
+            },
+            {
+                city: "Vienna",
+                country: "Austria",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 48.2082, lng: 16.3738 }
+            },
+            {
+                city: "Graz",
+                country: "Austria",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 47.0707, lng: 15.4386 }
+            },
+            {
+                city: "Minsk",
+                country: "Belarus",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 53.9000, lng: 27.5667 }
+            },
+            {
+                city: "Gomel",
+                country: "Belarus",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 52.4417, lng: 30.9833 }
+            },
+            {
+                city: "Brussels",
+                country: "Belgium",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 50.8503, lng: 4.3517 }
+            },
+            {
+                city: "Antwerp",
+                country: "Belgium",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 51.2211, lng: 4.3997 }
+            },
+            {
+                city: "Sarajevo",
+                country: "Bosnia and Herzegovina",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 43.8563, lng: 18.4131 }
+            },
+            {
+                city: "Banja Luka",
+                country: "Bosnia and Herzegovina",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 44.7667, lng: 17.1833 }
+            },
+            {
+                city: "Sofia",
+                country: "Bulgaria",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 42.6975, lng: 23.3241 }
+            },
+            {
+                city: "Plovdiv",
+                country: "Bulgaria",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 42.1421, lng: 24.7415 }
+            },
+            {
+                city: "Zagreb",
+                country: "Croatia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 45.8150, lng: 15.9819 }
+            },
+            {
+                city: "Split",
+                country: "Croatia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 43.5100, lng: 16.4500 }
+            },
+            {
+                city: "Nicosia",
+                country: "Cyprus",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 35.1856, lng: 33.3823 }
+            },
+            {
+                city: "Limassol",
+                country: "Cyprus",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 34.6750, lng: 33.0447 }
+            },
+            {
+                city: "Prague",
+                country: "Czech Republic",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 50.0875, lng: 14.4214 }
+            },
+            {
+                city: "Brno",
+                country: "Czech Republic",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 49.1953, lng: 16.6083 }
+            },
+            {
+                city: "Copenhagen",
+                country: "Denmark",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 55.6761, lng: 12.5683 }
+            },
+            {
+                city: "Aarhus",
+                country: "Denmark",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 56.1572, lng: 10.2107 }
+            },
+            {
+                city: "Tallinn",
+                country: "Estonia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 59.4372, lng: 24.7453 }
+            },
+            {
+                city: "Tartu",
+                country: "Estonia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 58.3833, lng: 26.7167 }
+            },
+            {
+                city: "Helsinki",
+                country: "Finland",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 60.1699, lng: 24.9384 }
+            },
+            {
+                city: "Tampere",
+                country: "Finland",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 61.4981, lng: 23.7608 }
+            },
+            {
+                city: "Paris",
+                country: "France",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 48.8566, lng: 2.3522 }
+            },
+            {
+                city: "Marseille",
+                country: "France",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 43.2965, lng: 5.3698 }
+            },
+            {
+                city: "Tbilisi",
+                country: "Georgia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 41.7225, lng: 44.7925 }
+            },
+            {
+                city: "Batumi",
+                country: "Georgia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 41.6458, lng: 41.6417 }
+            },
+            {
+                city: "Berlin",
+                country: "Germany",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 52.5200, lng: 13.4050 }
+            },
+            {
+                city: "Munich",
+                country: "Germany",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 48.1351, lng: 11.5820 }
+            },
+            {
+                city: "Athens",
+                country: "Greece",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 37.9838, lng: 23.7275 }
+            },
+            {
+                city: "Thessaloniki",
+                country: "Greece",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 40.6401, lng: 22.9444 }
+            },
+            {
+                city: "Budapest",
+                country: "Hungary",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 47.4979, lng: 19.0402 }
+            },
+            {
+                city: "Debrecen",
+                country: "Hungary",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 47.5300, lng: 21.6392 }
+            },
+            {
+                city: "Reykjavik",
+                country: "Iceland",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 64.1466, lng: -21.9426 }
+            },
+            {
+                city: "Akureyri",
+                country: "Iceland",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 65.6833, lng: -18.1000 }
+            },
+            {
+                city: "Dublin",
+                country: "Ireland",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 53.3498, lng: -6.2603 }
+            },
+            {
+                city: "Cork",
+                country: "Ireland",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 51.8986, lng: -8.4958 }
+            },
+            {
+                city: "Rome",
+                country: "Italy",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 41.9028, lng: 12.4964 }
+            },
+            {
+                city: "Milan",
+                country: "Italy",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 45.4642, lng: 9.1900 }
+            },
+            {
+                city: "Pristina",
+                country: "Kosovo",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 42.6639, lng: 21.1622 }
+            },
+            {
+                city: "Prizren",
+                country: "Kosovo",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 42.2139, lng: 20.7397 }
+            },
+            {
+                city: "Riga",
+                country: "Latvia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 56.9496, lng: 24.1052 }
+            },
+            {
+                city: "Daugavpils",
+                country: "Latvia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 55.8714, lng: 26.5161 }
+            },
+            {
+                city: "Vaduz",
+                country: "Liechtenstein",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 47.1415, lng: 9.5215 }
+            },
+            {
+                city: "Vilnius",
+                country: "Lithuania",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 54.6872, lng: 25.2797 }
+            },
+            {
+                city: "Kaunas",
+                country: "Lithuania",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 54.9000, lng: 23.9333 }
+            },
+            {
+                city: "Luxembourg",
+                country: "Luxembourg",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 49.6100, lng: 6.1296 }
+            },
+            {
+                city: "Valletta",
+                country: "Malta",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 35.8978, lng: 14.5125 }
+            },
+            {
+                city: "Chisinau",
+                country: "Moldova",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 47.0228, lng: 28.8353 }
+            },
+            {
+                city: "Tiraspol",
+                country: "Moldova",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 46.8500, lng: 29.6333 }
+            },
+            {
+                city: "Monaco",
+                country: "Monaco",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 43.7384, lng: 7.4246 }
+            },
+            {
+                city: "Podgorica",
+                country: "Montenegro",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 42.4396, lng: 19.2660 }
+            },
+            {
+                city: "Amsterdam",
+                country: "Netherlands",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 52.3676, lng: 4.9041 }
+            },
+            {
+                city: "Rotterdam",
+                country: "Netherlands",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 51.9225, lng: 4.4792 }
+            },
+            {
+                city: "Skopje",
+                country: "North Macedonia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 42.0000, lng: 21.4333 }
+            },
+            {
+                city: "Oslo",
+                country: "Norway",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 59.9139, lng: 10.7522 }
+            },
+            {
+                city: "Bergen",
+                country: "Norway",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 60.3894, lng: 5.3300 }
+            },
+            {
+                city: "Warsaw",
+                country: "Poland",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 52.2297, lng: 21.0122 }
+            },
+            {
+                city: "Kraków",
+                country: "Poland",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 50.0614, lng: 19.9372 }
+            },
+            {
+                city: "Lisbon",
+                country: "Portugal",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 38.7223, lng: -9.1393 }
+            },
+            {
+                city: "Porto",
+                country: "Portugal",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 41.1495, lng: -8.6108 }
+            },
+            {
+                city: "Bucharest",
+                country: "Romania",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 44.4268, lng: 26.1025 }
+            },
+            {
+                city: "Cluj-Napoca",
+                country: "Romania",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 46.7667, lng: 23.5833 }
+            },
+            {
+                city: "Moscow",
+                country: "Russia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 55.7558, lng: 37.6173 }
+            },
+            {
+                city: "Saint Petersburg",
+                country: "Russia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 59.9343, lng: 30.3351 }
+            },
+            {
+                city: "San Marino",
+                country: "San Marino",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 43.9320, lng: 12.4484 }
+            },
+            {
+                city: "Belgrade",
+                country: "Serbia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 44.8206, lng: 20.4622 }
+            },
+            {
+                city: "Novi Sad",
+                country: "Serbia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 45.2644, lng: 19.8317 }
+            },
+            {
+                city: "Bratislava",
+                country: "Slovakia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 48.1484, lng: 17.1073 }
+            },
+            {
+                city: "Košice",
+                country: "Slovakia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 48.7167, lng: 21.2500 }
+            },
+            {
+                city: "Ljubljana",
+                country: "Slovenia",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 46.0514, lng: 14.5060 }
+            },
+            {
+                city: "Maribor",
+                country: "Slovenia",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 46.5500, lng: 15.6333 }
+            },
+            {
+                city: "Madrid",
+                country: "Spain",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 40.4168, lng: -3.7038 }
+            },
+            {
+                city: "Barcelona",
+                country: "Spain",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 41.3851, lng: 2.1734 }
+            },
+            {
+                city: "Stockholm",
+                country: "Sweden",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 59.3293, lng: 18.0686 }
+            },
+            {
+                city: "Gothenburg",
+                country: "Sweden",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 57.7089, lng: 11.9746 }
+            },
+            {
+                city: "Bern",
+                country: "Switzerland",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 46.9480, lng: 7.4474 }
+            },
+            {
+                city: "Zurich",
+                country: "Switzerland",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 47.3769, lng: 8.5417 }
+            },
+            {
+                city: "Kyiv",
+                country: "Ukraine",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 50.4501, lng: 30.5234 }
+            },
+            {
+                city: "Kharkiv",
+                country: "Ukraine",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 49.9925, lng: 36.2311 }
+            },
+            {
+                city: "London",
+                country: "United Kingdom",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 51.5074, lng: -0.1278 }
+            },
+            {
+                city: "Manchester",
+                country: "United Kingdom",
+                isCapital: false,
+                isPopular: false,
+                region: "europe",
+                coordinates: { lat: 53.4808, lng: -2.2426 }
+            },
+            {
+                city: "Vatican City",
+                country: "Vatican City",
+                isCapital: true,
+                isPopular: true,
+                region: "europe",
+                coordinates: { lat: 41.9029, lng: 12.4534 }
+            },
+
+            // North America
+            {
+                city: "St. John's",
+                country: "Antigua and Barbuda",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 17.1211, lng: -61.8447 }
+            },
+            {
+                city: "Nassau",
+                country: "Bahamas",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 25.0667, lng: -77.3333 }
+            },
+            {
+                city: "Bridgetown",
+                country: "Barbados",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 13.0975, lng: -59.6167 }
+            },
+            {
+                city: "Belmopan",
+                country: "Belize",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 17.2514, lng: -88.7669 }
             },
             {
                 city: "Ottawa",
                 country: "Canada",
                 isCapital: true,
                 isPopular: true,
-                region: "americas",
+                region: "north-america",
                 coordinates: { lat: 45.4215, lng: -75.6972 }
             },
             {
                 city: "Toronto",
                 country: "Canada",
                 isCapital: false,
-                isPopular: true,
-                region: "americas",
-                coordinates: { lat: 43.6532, lng: -79.3832 }
+                isPopular: false,
+                region: "north-america",
+                coordinates: { lat: 43.7000, lng: -79.4000 }
             },
+            {
+                city: "San José",
+                country: "Costa Rica",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 9.9333, lng: -84.0833 }
+            },
+            {
+                city: "Havana",
+                country: "Cuba",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 23.1367, lng: -82.3589 }
+            },
+            {
+                city: "Roseau",
+                country: "Dominica",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 15.3000, lng: -61.3833 }
+            },
+            {
+                city: "Santo Domingo",
+                country: "Dominican Republic",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 18.4764, lng: -69.8933 }
+            },
+            {
+                city: "San Salvador",
+                country: "El Salvador",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 13.6989, lng: -89.1914 }
+            },
+            {
+                city: "St. George's",
+                country: "Grenada",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 12.0444, lng: -61.7417 }
+            },
+            {
+                city: "Guatemala City",
+                country: "Guatemala",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 14.6099, lng: -90.5252 }
+            },
+            {
+                city: "Port-au-Prince",
+                country: "Haiti",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 18.5425, lng: -72.3386 }
+            },
+            {
+                city: "Tegucigalpa",
+                country: "Honduras",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 14.0942, lng: -87.2067 }
+            },
+            {
+                city: "Kingston",
+                country: "Jamaica",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 17.9714, lng: -76.7931 }
+            },
+            {
+                city: "Mexico City",
+                country: "Mexico",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 19.4326, lng: -99.1332 }
+            },
+            {
+                city: "Managua",
+                country: "Nicaragua",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 12.1364, lng: -86.2514 }
+            },
+            {
+                city: "Panama City",
+                country: "Panama",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 8.9833, lng: -79.5167 }
+            },
+            {
+                city: "Basseterre",
+                country: "Saint Kitts and Nevis",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 17.2983, lng: -62.7342 }
+            },
+            {
+                city: "Castries",
+                country: "Saint Lucia",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 14.0167, lng: -60.9833 }
+            },
+            {
+                city: "Kingstown",
+                country: "Saint Vincent and the Grenadines",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 13.1667, lng: -61.2333 }
+            },
+            {
+                city: "Port of Spain",
+                country: "Trinidad and Tobago",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 10.6667, lng: -61.5167 }
+            },
+            {
+                city: "Washington, D.C.",
+                country: "United States",
+                isCapital: true,
+                isPopular: true,
+                region: "north-america",
+                coordinates: { lat: 38.9072, lng: -77.0369 }
+            },
+            {
+                city: "New York",
+                country: "United States",
+                isCapital: false,
+                isPopular: false,
+                region: "north-america",
+                coordinates: { lat: 40.7128, lng: -74.0060 }
+            },
+
+            // South America
             {
                 city: "Buenos Aires",
                 country: "Argentina",
                 isCapital: true,
                 isPopular: true,
-                region: "americas",
+                region: "south-america",
                 coordinates: { lat: -34.6037, lng: -58.3816 }
             },
             {
-                city: "Córdoba",
-                country: "Argentina",
-                isCapital: false,
+                city: "La Paz",
+                country: "Bolivia",
+                isCapital: true,
                 isPopular: true,
-                region: "americas",
-                coordinates: { lat: -31.4201, lng: -64.1888 }
+                region: "south-america",
+                coordinates: { lat: -16.4942, lng: -68.1475 }
             },
             {
                 city: "Brasília",
                 country: "Brazil",
                 isCapital: true,
                 isPopular: true,
-                region: "americas",
-                coordinates: { lat: -15.8267, lng: -47.9218 }
+                region: "south-america",
+                coordinates: { lat: -15.7939, lng: -47.8828 }
             },
             {
-                city: "Rio de Janeiro",
-                country: "Brazil",
-                isCapital: false,
+                city: "Santiago",
+                country: "Chile",
+                isCapital: true,
                 isPopular: true,
-                region: "americas",
-                coordinates: { lat: -22.9068, lng: -43.1729 }
+                region: "south-america",
+                coordinates: { lat: -33.4489, lng: -70.6693 }
             },
-            
+            {
+                city: "Bogotá",
+                country: "Colombia",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: 4.7110, lng: -74.0721 }
+            },
+            {
+                city: "Quito",
+                country: "Ecuador",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: -0.2202, lng: -78.5125 }
+            },
+            {
+                city: "Georgetown",
+                country: "Guyana",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: 6.8058, lng: -58.1508 }
+            },
+            {
+                city: "Asunción",
+                country: "Paraguay",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: -25.3005, lng: -57.6362 }
+            },
+            {
+                city: "Lima",
+                country: "Peru",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: -12.0464, lng: -77.0428 }
+            },
+            {
+                city: "Paramaribo",
+                country: "Suriname",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: 5.8667, lng: -55.1667 }
+            },
+            {
+                city: "Montevideo",
+                country: "Uruguay",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: -34.8836, lng: -56.1819 }
+            },
+            {
+                city: "Caracas",
+                country: "Venezuela",
+                isCapital: true,
+                isPopular: true,
+                region: "south-america",
+                coordinates: { lat: 10.4806, lng: -66.9036 }
+            },
+
             // Oceania
             {
                 city: "Canberra",
@@ -845,9 +2358,49 @@
                 city: "Sydney",
                 country: "Australia",
                 isCapital: false,
-                isPopular: true,
+                isPopular: false,
                 region: "oceania",
                 coordinates: { lat: -33.8688, lng: 151.2093 }
+            },
+            {
+                city: "Suva",
+                country: "Fiji",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -18.1416, lng: 178.4419 }
+            },
+            {
+                city: "Tarawa",
+                country: "Kiribati",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: 1.3382, lng: 173.0176 }
+            },
+            {
+                city: "Majuro",
+                country: "Marshall Islands",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: 7.0897, lng: 171.3803 }
+            },
+            {
+                city: "Palikir",
+                country: "Micronesia",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: 6.9178, lng: 158.1850 }
+            },
+            {
+                city: "Yaren",
+                country: "Nauru",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -0.5477, lng: 166.9209 }
             },
             {
                 city: "Wellington",
@@ -861,52 +2414,3362 @@
                 city: "Auckland",
                 country: "New Zealand",
                 isCapital: false,
-                isPopular: true,
+                isPopular: false,
                 region: "oceania",
                 coordinates: { lat: -36.8485, lng: 174.7633 }
             },
-            
-            // Less popular cities
             {
-                city: "Lille",
-                country: "France",
+                city: "Koror",
+                country: "Palau",
                 isCapital: false,
-                isPopular: false,
-                region: "europe",
-                coordinates: { lat: 50.6292, lng: 3.0573 }
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: 7.3436, lng: 134.4775 }
             },
             {
-                city: "Dresden",
-                country: "Germany",
-                isCapital: false,
-                isPopular: false,
-                region: "europe",
-                coordinates: { lat: 51.0504, lng: 13.7373 }
+                city: "Port Moresby",
+                country: "Papua New Guinea",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -9.4783, lng: 147.1506 }
             },
             {
-                city: "Bologna",
-                country: "Italy",
-                isCapital: false,
-                isPopular: false,
-                region: "europe",
-                coordinates: { lat: 44.4949, lng: 11.3426 }
+                city: "Apia",
+                country: "Samoa",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -13.8333, lng: -171.7667 }
             },
             {
-                city: "Valencia",
-                country: "Spain",
-                isCapital: false,
-                isPopular: false,
-                region: "europe",
-                coordinates: { lat: 39.4699, lng: -0.3763 }
+                city: "Honiara",
+                country: "Solomon Islands",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -9.4333, lng: 159.9500 }
             },
             {
-                city: "Leeds",
-                country: "United Kingdom",
-                isCapital: false,
-                isPopular: false,
-                region: "europe",
-                coordinates: { lat: 53.8008, lng: -1.5491 }
-            }
+                city: "Nuku'alofa",
+                country: "Tonga",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -21.1333, lng: -175.2000 }
+            },
+            {
+                city: "Funafuti",
+                country: "Tuvalu",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -8.5167, lng: 179.2167 }
+            },
+            {
+                city: "Port Vila",
+                country: "Vanuatu",
+                isCapital: true,
+                isPopular: true,
+                region: "oceania",
+                coordinates: { lat: -17.7333, lng: 168.3167 }
+            },
+            {
+        "city": "Kabul",
+        "country": "Afghanistan",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 34.5553, "lng": 69.2075 }
+    },
+    {
+        "city": "Kandahar",
+        "country": "Afghanistan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 31.6200, "lng": 65.7150 }
+    },
+    {
+        "city": "Herat",
+        "country": "Afghanistan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 34.3739, "lng": 62.1792 }
+    },
+    {
+        "city": "Mazar-i-Sharif",
+        "country": "Afghanistan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 36.7000, "lng": 67.1167 }
+    },
+    {
+        "city": "Jalalabad",
+        "country": "Afghanistan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 34.4300, "lng": 70.4500 }
+    },
+    {
+        "city": "Algiers",
+        "country": "Algeria",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 36.7539, "lng": 3.0589 }
+    },
+    {
+        "city": "Oran",
+        "country": "Algeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 35.6911, "lng": -0.6417 }
+    },
+    {
+        "city": "Constantine",
+        "country": "Algeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 36.3650, "lng": 6.6147 }
+    },
+    {
+        "city": "Annaba",
+        "country": "Algeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 36.9000, "lng": 7.7667 }
+    },
+    {
+        "city": "Blida",
+        "country": "Algeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 36.4722, "lng": 2.8333 }
+    },
+    {
+        "city": "Luanda",
+        "country": "Angola",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -8.8383, "lng": 13.2344 }
+    },
+    {
+        "city": "Huambo",
+        "country": "Angola",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.7667, "lng": 15.7333 }
+    },
+    {
+        "city": "Lobito",
+        "country": "Angola",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.3597, "lng": 13.5308 }
+    },
+    {
+        "city": "Benguela",
+        "country": "Angola",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.5500, "lng": 13.4167 }
+    },
+    {
+        "city": "Kuito",
+        "country": "Angola",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.3833, "lng": 16.9333 }
+    },
+    {
+        "city": "St. John's",
+        "country": "Antigua and Barbuda",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "north-america",
+        "coordinates": { "lat": 17.1211, "lng": -61.8447 }
+    },
+    {
+        "city": "All Saints",
+        "country": "Antigua and Barbuda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 17.0667, "lng": -61.8000 }
+    },
+    {
+        "city": "Liberta",
+        "country": "Antigua and Barbuda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 17.0333, "lng": -61.7833 }
+    },
+    {
+        "city": "Bolans",
+        "country": "Antigua and Barbuda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 17.0500, "lng": -61.8667 }
+    },
+    {
+        "city": "Codrington",
+        "country": "Antigua and Barbuda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 17.6333, "lng": -61.8333 }
+    },
+    {
+        "city": "Yerevan",
+        "country": "Armenia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 40.1814, "lng": 44.5144 }
+    },
+    {
+        "city": "Gyumri",
+        "country": "Armenia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.7894, "lng": 43.8475 }
+    },
+    {
+        "city": "Vanadzor",
+        "country": "Armenia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.8128, "lng": 44.4883 }
+    },
+    {
+        "city": "Ejmiatsin",
+        "country": "Armenia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.1728, "lng": 44.2925 }
+    },
+    {
+        "city": "Dilijan",
+        "country": "Armenia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.7408, "lng": 44.8631 }
+    },
+    // Azerbaijan
+    {
+        "city": "Baku",
+        "country": "Azerbaijan",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 40.4093, "lng": 49.8671 }
+    },
+    {
+        "city": "Ganja",
+        "country": "Azerbaijan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.6828, "lng": 46.3606 }
+    },
+    {
+        "city": "Sumqayit",
+        "country": "Azerbaijan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.5917, "lng": 49.6306 }
+    },
+    {
+        "city": "Shirvan",
+        "country": "Azerbaijan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 39.9328, "lng": 48.9203 }
+    },
+    {
+        "city": "Lankaran",
+        "country": "Azerbaijan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 38.7536, "lng": 48.8511 }
+    },
+
+    // Bahamas
+    {
+        "city": "Nassau",
+        "country": "Bahamas",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "north-america",
+        "coordinates": { "lat": 25.0667, "lng": -77.3333 }
+    },
+    {
+        "city": "Freeport",
+        "country": "Bahamas",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 26.5333, "lng": -78.7000 }
+    },
+    {
+        "city": "Marsh Harbour",
+        "country": "Bahamas",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 26.5411, "lng": -77.0636 }
+    },
+    {
+        "city": "Andros Town",
+        "country": "Bahamas",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 24.7000, "lng": -77.7667 }
+    },
+    {
+        "city": "George Town",
+        "country": "Bahamas",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 23.5167, "lng": -75.7667 }
+    },
+
+    // Barbados
+    {
+        "city": "Bridgetown",
+        "country": "Barbados",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "north-america",
+        "coordinates": { "lat": 13.0975, "lng": -59.6167 }
+    },
+    {
+        "city": "Speightstown",
+        "country": "Barbados",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 13.2500, "lng": -59.6500 }
+    },
+    {
+        "city": "Oistins",
+        "country": "Barbados",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 13.0667, "lng": -59.5333 }
+    },
+    {
+        "city": "Holetown",
+        "country": "Barbados",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 13.1867, "lng": -59.6436 }
+    },
+    {
+        "city": "The Crane",
+        "country": "Barbados",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 13.1000, "lng": -59.4500 }
+    },
+    // Japan (original list had Tokyo, Osaka, Kyoto, Yokohama, Sapporo)
+    {
+        "city": "Nagoya",
+        "country": "Japan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 35.1815, "lng": 136.9066 }
+    },
+    {
+        "city": "Hiroshima",
+        "country": "Japan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 34.3853, "lng": 132.4553 }
+    },
+    {
+        "city": "Fukuoka",
+        "country": "Japan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 33.5900, "lng": 130.4017 }
+    },
+
+    // Saudi Arabia (original list had Riyadh, Jeddah)
+    {
+        "city": "Mecca",
+        "country": "Saudi Arabia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 21.3891, "lng": 39.8579 }
+    },
+    {
+        "city": "Medina",
+        "country": "Saudi Arabia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 24.4667, "lng": 39.6000 }
+    },
+    {
+        "city": "Dammam",
+        "country": "Saudi Arabia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 26.4333, "lng": 50.1000 }
+    },
+
+    // Pakistan (original list had Islamabad, Karachi, Lahore, Faisalabad, Rawalpindi)
+    {
+        "city": "Peshawar",
+        "country": "Pakistan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 34.0150, "lng": 71.5800 }
+    },
+    {
+        "city": "Quetta",
+        "country": "Pakistan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 30.1920, "lng": 67.0070 }
+    },
+    // Benin
+    {
+        "city": "Porto-Novo",
+        "country": "Benin",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 6.4833, "lng": 2.6167 }
+    },
+    {
+        "city": "Cotonou",
+        "country": "Benin",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 6.3667, "lng": 2.4333 }
+    },
+    {
+        "city": "Parakou",
+        "country": "Benin",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.3500, "lng": 2.6167 }
+    },
+    {
+        "city": "Djougou",
+        "country": "Benin",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.7000, "lng": 1.6667 }
+    },
+    {
+        "city": "Abomey",
+        "country": "Benin",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.1833, "lng": 1.9833 }
+    },
+
+    // Bhutan
+    {
+        "city": "Thimphu",
+        "country": "Bhutan",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 27.4722, "lng": 89.6361 }
+    },
+    {
+        "city": "Punakha",
+        "country": "Bhutan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 27.6167, "lng": 89.8667 }
+    },
+    {
+        "city": "Paro",
+        "country": "Bhutan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 27.4333, "lng": 89.4167 }
+    },
+    {
+        "city": "Wangdue Phodrang",
+        "country": "Bhutan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 27.4333, "lng": 89.9167 }
+    },
+    {
+        "city": "Jakar",
+        "country": "Bhutan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 27.5500, "lng": 90.7333 }
+    },
+
+    // Brunei
+    {
+        "city": "Bandar Seri Begawan",
+        "country": "Brunei",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 4.8903, "lng": 114.9422 }
+    },
+    {
+        "city": "Kuala Belait",
+        "country": "Brunei",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 4.5833, "lng": 114.1833 }
+    },
+    {
+        "city": "Seria",
+        "country": "Brunei",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 4.6167, "lng": 114.3167 }
+    },
+    {
+        "city": "Tutong",
+        "country": "Brunei",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 4.8000, "lng": 114.6500 }
+    },
+    {
+        "city": "Bangar",
+        "country": "Brunei",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 4.7167, "lng": 115.0667 }
+    },
+
+    // Burkina Faso
+    {
+        "city": "Ouagadougou",
+        "country": "Burkina Faso",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 12.3686, "lng": -1.5275 }
+    },
+    {
+        "city": "Bobo-Dioulasso",
+        "country": "Burkina Faso",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.1833, "lng": -4.2833 }
+    },
+    {
+        "city": "Koudougou",
+        "country": "Burkina Faso",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.2500, "lng": -2.3667 }
+    },
+    {
+        "city": "Ouahigouya",
+        "country": "Burkina Faso",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.5833, "lng": -2.4167 }
+    },
+    {
+        "city": "Banfora",
+        "country": "Burkina Faso",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 10.6333, "lng": -4.7667 }
+    },
+
+    // Burundi
+    {
+        "city": "Gitega",
+        "country": "Burundi",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -3.4283, "lng": 29.9250 }
+    },
+    {
+        "city": "Bujumbura",
+        "country": "Burundi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -3.3825, "lng": 29.3611 }
+    },
+    {
+        "city": "Ngozi",
+        "country": "Burundi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -2.9083, "lng": 29.8250 }
+    },
+    {
+        "city": "Rumonge",
+        "country": "Burundi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -3.9667, "lng": 29.4333 }
+    },
+    {
+        "city": "Kayanza",
+        "country": "Burundi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -2.9167, "lng": 29.6167 }
+    },
+
+    // Cabo Verde
+    {
+        "city": "Praia",
+        "country": "Cabo Verde",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 14.9167, "lng": -23.5167 }
+    },
+    {
+        "city": "Mindelo",
+        "country": "Cabo Verde",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 16.8833, "lng": -24.9833 }
+    },
+    {
+        "city": "Santa Maria",
+        "country": "Cabo Verde",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 16.6000, "lng": -22.9000 }
+    },
+    {
+        "city": "Assomada",
+        "country": "Cabo Verde",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 15.1000, "lng": -23.6833 }
+    },
+    {
+        "city": "Porto Novo",
+        "country": "Cabo Verde",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 17.0167, "lng": -25.0667 }
+    },
+     // Cameroon
+    {
+        "city": "Yaoundé",
+        "country": "Cameroon",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 3.8667, "lng": 11.5167 }
+    },
+    {
+        "city": "Douala",
+        "country": "Cameroon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.0500, "lng": 9.7000 }
+    },
+    {
+        "city": "Bamenda",
+        "country": "Cameroon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 5.9333, "lng": 10.1667 }
+    },
+    {
+        "city": "Bafoussam",
+        "country": "Cameroon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 5.4667, "lng": 10.4167 }
+    },
+    {
+        "city": "Garoua",
+        "country": "Cameroon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.3000, "lng": 13.4000 }
+    },
+
+    // Central African Republic
+    {
+        "city": "Bangui",
+        "country": "Central African Republic",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 4.3667, "lng": 18.5833 }
+    },
+    {
+        "city": "Bimbo",
+        "country": "Central African Republic",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.3000, "lng": 18.5500 }
+    },
+    {
+        "city": "Berbérati",
+        "country": "Central African Republic",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.2667, "lng": 15.7833 }
+    },
+    {
+        "city": "Carnot",
+        "country": "Central African Republic",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.9333, "lng": 15.8667 }
+    },
+    {
+        "city": "Bambari",
+        "country": "Central African Republic",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 5.7667, "lng": 20.6667 }
+    },
+
+    // Chad
+    {
+        "city": "N'Djamena",
+        "country": "Chad",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 12.1100, "lng": 15.0500 }
+    },
+    {
+        "city": "Moundou",
+        "country": "Chad",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 8.5667, "lng": 16.0833 }
+    },
+    {
+        "city": "Sarh",
+        "country": "Chad",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.1500, "lng": 18.3833 }
+    },
+    {
+        "city": "Abéché",
+        "country": "Chad",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.8333, "lng": 20.8333 }
+    },
+    {
+        "city": "Kélo",
+        "country": "Chad",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.3167, "lng": 15.8000 }
+    },
+
+    // Comoros
+    {
+        "city": "Moroni",
+        "country": "Comoros",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -11.7000, "lng": 43.2556 }
+    },
+    {
+        "city": "Mutsamudu",
+        "country": "Comoros",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.1667, "lng": 44.4000 }
+    },
+    {
+        "city": "Fomboni",
+        "country": "Comoros",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.2833, "lng": 43.7333 }
+    },
+    {
+        "city": "Domoni",
+        "country": "Comoros",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.2500, "lng": 44.5333 }
+    },
+    {
+        "city": "Tsimbeo",
+        "country": "Comoros",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.1833, "lng": 44.3500 }
+    },
+
+    // Congo (Republic)
+    {
+        "city": "Brazzaville",
+        "country": "Congo",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -4.2667, "lng": 15.2833 }
+    },
+    {
+        "city": "Pointe-Noire",
+        "country": "Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.8000, "lng": 11.8500 }
+    },
+    {
+        "city": "Dolisie",
+        "country": "Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.2000, "lng": 12.6667 }
+    },
+    {
+        "city": "Nkayi",
+        "country": "Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.1833, "lng": 13.2833 }
+    },
+    {
+        "city": "Owando",
+        "country": "Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -0.4833, "lng": 15.9000 }
+    },
+
+    // Djibouti
+    {
+        "city": "Djibouti",
+        "country": "Djibouti",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 11.5950, "lng": 43.1481 }
+    },
+    {
+        "city": "Ali Sabieh",
+        "country": "Djibouti",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.1558, "lng": 42.7125 }
+    },
+    {
+        "city": "Tadjoura",
+        "country": "Djibouti",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.7833, "lng": 42.8833 }
+    },
+    {
+        "city": "Obock",
+        "country": "Djibouti",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.9667, "lng": 43.2833 }
+    },
+    {
+        "city": "Dikhil",
+        "country": "Djibouti",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.1086, "lng": 42.3667 }
+    },
+     // Dominica
+    {
+        "city": "Roseau",
+        "country": "Dominica",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "north-america",
+        "coordinates": { "lat": 15.3000, "lng": -61.3833 }
+    },
+    {
+        "city": "Portsmouth",
+        "country": "Dominica",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 15.5833, "lng": -61.4667 }
+    },
+    {
+        "city": "Marigot",
+        "country": "Dominica",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 15.5333, "lng": -61.2833 }
+    },
+    {
+        "city": "Berekua",
+        "country": "Dominica",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 15.2333, "lng": -61.3167 }
+    },
+    {
+        "city": "Mahaut",
+        "country": "Dominica",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 15.3667, "lng": -61.4000 }
+    },
+
+    // Equatorial Guinea
+    {
+        "city": "Malabo",
+        "country": "Equatorial Guinea",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 3.7500, "lng": 8.7833 }
+    },
+    {
+        "city": "Bata",
+        "country": "Equatorial Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 1.8500, "lng": 9.7500 }
+    },
+    {
+        "city": "Ebebiyín",
+        "country": "Equatorial Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 2.1500, "lng": 11.3167 }
+    },
+    {
+        "city": "Mongomo",
+        "country": "Equatorial Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 1.6333, "lng": 11.3167 }
+    },
+    {
+        "city": "Evinayong",
+        "country": "Equatorial Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 1.4500, "lng": 10.5667 }
+    },
+
+    // Eritrea
+    {
+        "city": "Asmara",
+        "country": "Eritrea",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 15.3333, "lng": 38.9167 }
+    },
+    {
+        "city": "Keren",
+        "country": "Eritrea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 15.7833, "lng": 38.4500 }
+    },
+    {
+        "city": "Massawa",
+        "country": "Eritrea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 15.6167, "lng": 39.4500 }
+    },
+    {
+        "city": "Assab",
+        "country": "Eritrea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.0167, "lng": 42.7333 }
+    },
+    {
+        "city": "Mendefera",
+        "country": "Eritrea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 14.8833, "lng": 38.8167 }
+    },
+
+    // Eswatini
+    {
+        "city": "Mbabane",
+        "country": "Eswatini",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -26.3167, "lng": 31.1333 }
+    },
+    {
+        "city": "Manzini",
+        "country": "Eswatini",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -26.4833, "lng": 31.3667 }
+    },
+    {
+        "city": "Big Bend",
+        "country": "Eswatini",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -26.8167, "lng": 31.9333 }
+    },
+    {
+        "city": "Nhlangano",
+        "country": "Eswatini",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -27.1167, "lng": 31.2000 }
+    },
+    {
+        "city": "Siteki",
+        "country": "Eswatini",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -26.4500, "lng": 31.9500 }
+    },
+
+    // Fiji
+    {
+        "city": "Suva",
+        "country": "Fiji",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "oceania",
+        "coordinates": { "lat": -18.1416, "lng": 178.4419 }
+    },
+    {
+        "city": "Lautoka",
+        "country": "Fiji",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": -17.6167, "lng": 177.4667 }
+    },
+    {
+        "city": "Nadi",
+        "country": "Fiji",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": -17.8000, "lng": 177.4167 }
+    },
+    {
+        "city": "Labasa",
+        "country": "Fiji",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": -16.4167, "lng": 179.3667 }
+    },
+    {
+        "city": "Levuka",
+        "country": "Fiji",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": -17.6833, "lng": 178.8333 }
+    },
+
+    // Gabon
+    {
+        "city": "Libreville",
+        "country": "Gabon",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 0.3901, "lng": 9.4544 }
+    },
+    {
+        "city": "Port-Gentil",
+        "country": "Gabon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -0.7167, "lng": 8.7833 }
+    },
+    {
+        "city": "Franceville",
+        "country": "Gabon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -1.6333, "lng": 13.5833 }
+    },
+    {
+        "city": "Oyem",
+        "country": "Gabon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 1.6167, "lng": 11.5833 }
+    },
+    {
+        "city": "Moanda",
+        "country": "Gabon",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -1.5667, "lng": 13.2000 }
+    },
+     // Grenada
+    {
+        "city": "St. George's",
+        "country": "Grenada",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "north-america",
+        "coordinates": { "lat": 12.0444, "lng": -61.7417 }
+    },
+    {
+        "city": "Gouyave",
+        "country": "Grenada",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 12.1667, "lng": -61.7333 }
+    },
+    {
+        "city": "Grenville",
+        "country": "Grenada",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 12.1167, "lng": -61.6167 }
+    },
+    {
+        "city": "Victoria",
+        "country": "Grenada",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 12.1833, "lng": -61.7000 }
+    },
+    {
+        "city": "Sauteurs",
+        "country": "Grenada",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "north-america",
+        "coordinates": { "lat": 12.2167, "lng": -61.6333 }
+    },
+
+    // Guinea
+    {
+        "city": "Conakry",
+        "country": "Guinea",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 9.5092, "lng": -13.7122 }
+    },
+    {
+        "city": "Nzérékoré",
+        "country": "Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.7500, "lng": -8.8167 }
+    },
+    {
+        "city": "Kankan",
+        "country": "Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 10.3833, "lng": -9.3000 }
+    },
+    {
+        "city": "Kindia",
+        "country": "Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 10.0500, "lng": -12.8667 }
+    },
+    {
+        "city": "Labé",
+        "country": "Guinea",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.3167, "lng": -12.2833 }
+    },
+
+    // Guinea-Bissau
+    {
+        "city": "Bissau",
+        "country": "Guinea-Bissau",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 11.8500, "lng": -15.5667 }
+    },
+    {
+        "city": "Bafatá",
+        "country": "Guinea-Bissau",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.1667, "lng": -14.6667 }
+    },
+    {
+        "city": "Gabú",
+        "country": "Guinea-Bissau",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.2833, "lng": -14.2167 }
+    },
+    {
+        "city": "Cacheu",
+        "country": "Guinea-Bissau",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.2667, "lng": -16.1667 }
+    },
+    {
+        "city": "Bolama",
+        "country": "Guinea-Bissau",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.5833, "lng": -15.4833 }
+    },
+
+    // Guyana
+    {
+        "city": "Georgetown",
+        "country": "Guyana",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "south-america",
+        "coordinates": { "lat": 6.8058, "lng": -58.1508 }
+    },
+    {
+        "city": "Linden",
+        "country": "Guyana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "south-america",
+        "coordinates": { "lat": 6.0000, "lng": -58.3000 }
+    },
+    {
+        "city": "New Amsterdam",
+        "country": "Guyana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "south-america",
+        "coordinates": { "lat": 6.2500, "lng": -57.5167 }
+    },
+    {
+        "city": "Bartica",
+        "country": "Guyana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "south-america",
+        "coordinates": { "lat": 6.4000, "lng": -58.6167 }
+    },
+    {
+        "city": "Skeldon",
+        "country": "Guyana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "south-america",
+        "coordinates": { "lat": 5.8833, "lng": -57.1333 }
+    },
+
+    // Kiribati
+    {
+        "city": "Tarawa",
+        "country": "Kiribati",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "oceania",
+        "coordinates": { "lat": 1.3382, "lng": 173.0176 }
+    },
+    {
+        "city": "Betio",
+        "country": "Kiribati",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": 1.3572, "lng": 172.9214 }
+    },
+    {
+        "city": "Bikenibeu",
+        "country": "Kiribati",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": 1.3672, "lng": 173.1389 }
+    },
+    {
+        "city": "Tabiteuea",
+        "country": "Kiribati",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": -1.3833, "lng": 174.8500 }
+    },
+    {
+        "city": "Butaritari",
+        "country": "Kiribati",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "oceania",
+        "coordinates": { "lat": 3.0667, "lng": 172.7833 }
+    },
+
+    // Lesotho
+    {
+        "city": "Maseru",
+        "country": "Lesotho",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -29.3100, "lng": 27.4800 }
+    },
+    {
+        "city": "Teyateyaneng",
+        "country": "Lesotho",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -29.1500, "lng": 27.7333 }
+    },
+    {
+        "city": "Mafeteng",
+        "country": "Lesotho",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -29.8167, "lng": 27.2500 }
+    },
+    {
+        "city": "Hlotse",
+        "country": "Lesotho",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -28.8667, "lng": 28.0500 }
+    },
+    {
+        "city": "Mohale's Hoek",
+        "country": "Lesotho",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -30.1500, "lng": 27.4667 }
+    },
+     // Bahrain
+    {
+        "city": "Manama",
+        "country": "Bahrain",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 26.2250, "lng": 50.5775 }
+    },
+    {
+        "city": "Muharraq",
+        "country": "Bahrain",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 26.2500, "lng": 50.6167 }
+    },
+    {
+        "city": "Riffa",
+        "country": "Bahrain",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 26.1300, "lng": 50.5550 }
+    },
+    {
+        "city": "Hamad Town",
+        "country": "Bahrain",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 26.1128, "lng": 50.5139 }
+    },
+    {
+        "city": "Isa Town",
+        "country": "Bahrain",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 26.1736, "lng": 50.5478 }
+    },
+
+    // Bangladesh
+    {
+        "city": "Dhaka",
+        "country": "Bangladesh",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 23.8103, "lng": 90.4125 }
+    },
+    {
+        "city": "Chittagong",
+        "country": "Bangladesh",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 22.3667, "lng": 91.8000 }
+    },
+    {
+        "city": "Khulna",
+        "country": "Bangladesh",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 22.8167, "lng": 89.5500 }
+    },
+    {
+        "city": "Rajshahi",
+        "country": "Bangladesh",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 24.3667, "lng": 88.6000 }
+    },
+    {
+        "city": "Sylhet",
+        "country": "Bangladesh",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 24.9000, "lng": 91.8667 }
+    },
+
+    // Botswana
+    {
+        "city": "Gaborone",
+        "country": "Botswana",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -24.6581, "lng": 25.9122 }
+    },
+    {
+        "city": "Francistown",
+        "country": "Botswana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -21.1700, "lng": 27.5000 }
+    },
+    {
+        "city": "Maun",
+        "country": "Botswana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -19.9833, "lng": 23.4167 }
+    },
+    {
+        "city": "Molepolole",
+        "country": "Botswana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -24.4067, "lng": 25.4950 }
+    },
+    {
+        "city": "Serowe",
+        "country": "Botswana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -22.3833, "lng": 26.7167 }
+    },
+
+    // Cambodia
+    {
+        "city": "Phnom Penh",
+        "country": "Cambodia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 11.5500, "lng": 104.9167 }
+    },
+    {
+        "city": "Siem Reap",
+        "country": "Cambodia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 13.3622, "lng": 103.8597 }
+    },
+    {
+        "city": "Battambang",
+        "country": "Cambodia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 13.1000, "lng": 103.2000 }
+    },
+    {
+        "city": "Sihanoukville",
+        "country": "Cambodia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 10.6333, "lng": 103.5000 }
+    },
+    {
+        "city": "Kampong Cham",
+        "country": "Cambodia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 11.9833, "lng": 105.4500 }
+    },
+
+    // China (5 major cities not already in your list)
+    {
+        "city": "Shanghai",
+        "country": "China",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 31.1667, "lng": 121.4667 }
+    },
+    {
+        "city": "Guangzhou",
+        "country": "China",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 23.1288, "lng": 113.2590 }
+    },
+    {
+        "city": "Shenzhen",
+        "country": "China",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 22.5350, "lng": 114.0540 }
+    },
+    {
+        "city": "Chengdu",
+        "country": "China",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 30.6600, "lng": 104.0633 }
+    },
+    {
+        "city": "Xi'an",
+        "country": "China",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 34.2667, "lng": 108.9000 }
+    },
+
+    // Ivory Coast (Côte d'Ivoire)
+    {
+        "city": "Yamoussoukro",
+        "country": "Ivory Coast",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 6.8161, "lng": -5.2742 }
+    },
+    {
+        "city": "Abidjan",
+        "country": "Ivory Coast",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 5.3167, "lng": -4.0333 }
+    },
+    {
+        "city": "Bouaké",
+        "country": "Ivory Coast",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.6833, "lng": -5.0333 }
+    },
+    {
+        "city": "San-Pédro",
+        "country": "Ivory Coast",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.7500, "lng": -6.6333 }
+    },
+    {
+        "city": "Korhogo",
+        "country": "Ivory Coast",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.4500, "lng": -5.6333 }
+    },
+
+    // Democratic Republic of the Congo
+    {
+        "city": "Kinshasa",
+        "country": "Democratic Republic of the Congo",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -4.3250, "lng": 15.3222 }
+    },
+    {
+        "city": "Lubumbashi",
+        "country": "Democratic Republic of the Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -11.6647, "lng": 27.4794 }
+    },
+    {
+        "city": "Mbuji-Mayi",
+        "country": "Democratic Republic of the Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -6.1500, "lng": 23.6000 }
+    },
+    {
+        "city": "Kananga",
+        "country": "Democratic Republic of the Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -5.8961, "lng": 22.4167 }
+    },
+    {
+        "city": "Bukavu",
+        "country": "Democratic Republic of the Congo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -2.5000, "lng": 28.8667 }
+    },
+     // Bahrain
+    {
+        "city": "Manama",
+        "country": "Bahrain",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 26.2250, "lng": 50.5775 }
+    },
+
+    // Bangladesh
+    {
+        "city": "Dhaka",
+        "country": "Bangladesh",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 23.8103, "lng": 90.4125 }
+    },
+
+    // Botswana
+    {
+        "city": "Gaborone",
+        "country": "Botswana",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -24.6581, "lng": 25.9122 }
+    },
+
+    // Cambodia
+    {
+        "city": "Phnom Penh",
+        "country": "Cambodia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 11.5500, "lng": 104.9167 }
+    },
+
+    // China
+    {
+        "city": "Beijing",
+        "country": "China",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 39.9042, "lng": 116.4074 }
+    },
+
+    // Ivory Coast
+    {
+        "city": "Yamoussoukro",
+        "country": "Ivory Coast",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 6.8161, "lng": -5.2742 }
+    },
+
+    // Democratic Republic of the Congo
+    {
+        "city": "Kinshasa",
+        "country": "Democratic Republic of the Congo",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -4.3250, "lng": 15.3222 }
+    },
+    {
+        "city": "Cairo",
+        "country": "Egypt",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 30.0444, "lng": 31.2358 }
+    },
+    {
+        "city": "Alexandria",
+        "country": "Egypt",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 31.2000, "lng": 29.9167 }
+    },
+    {
+        "city": "Giza",
+        "country": "Egypt",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 29.9870, "lng": 31.2118 }
+    },
+    {
+        "city": "Luxor",
+        "country": "Egypt",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 25.6969, "lng": 32.6422 }
+    },
+    {
+        "city": "Aswan",
+        "country": "Egypt",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 24.0889, "lng": 32.8997 }
+    },
+    {
+        "city": "Port Said",
+        "country": "Egypt",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 31.2500, "lng": 32.2833 }
+    },
+    {
+        "city": "Addis Ababa",
+        "country": "Ethiopia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 9.0300, "lng": 38.7400 }
+    },
+    {
+        "city": "Dire Dawa",
+        "country": "Ethiopia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.6000, "lng": 41.8667 }
+    },
+    {
+        "city": "Mekele",
+        "country": "Ethiopia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.4969, "lng": 39.4769 }
+    },
+    {
+        "city": "Gondar",
+        "country": "Ethiopia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.6000, "lng": 37.4667 }
+    },
+    {
+        "city": "Bahir Dar",
+        "country": "Ethiopia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.6000, "lng": 37.3833 }
+    },
+     {
+        "city": "Banjul",
+        "country": "Gambia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 13.4531, "lng": -16.5775 }
+    },
+    {
+        "city": "Serekunda",
+        "country": "Gambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.4333, "lng": -16.6667 }
+    },
+    {
+        "city": "Brikama",
+        "country": "Gambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.2667, "lng": -16.6500 }
+    },
+    {
+        "city": "Bakau",
+        "country": "Gambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.4833, "lng": -16.6833 }
+    },
+    {
+        "city": "Farafenni",
+        "country": "Gambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.5667, "lng": -15.6000 }
+    },
+     {
+        "city": "Accra",
+        "country": "Ghana",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 5.5500, "lng": -0.2000 }
+    },
+    {
+        "city": "Kumasi",
+        "country": "Ghana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 6.6833, "lng": -1.6167 }
+    },
+    {
+        "city": "Tamale",
+        "country": "Ghana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.4000, "lng": -0.8333 }
+    },
+    {
+        "city": "Sekondi-Takoradi",
+        "country": "Ghana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.9167, "lng": -1.7667 }
+    },
+    {
+        "city": "Cape Coast",
+        "country": "Ghana",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 5.1000, "lng": -1.2500 }
+    },
+    {
+        "city": "New Delhi",
+        "country": "India",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 28.6139, "lng": 77.2090 }
+    },
+    {
+        "city": "Mumbai",
+        "country": "India",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 19.0760, "lng": 72.8777 }
+    },
+    {
+        "city": "Bangalore",
+        "country": "India",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 12.9716, "lng": 77.5946 }
+    },
+    {
+        "city": "Hyderabad",
+        "country": "India",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 17.3850, "lng": 78.4867 }
+    },
+    {
+        "city": "Chennai",
+        "country": "India",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 13.0825, "lng": 80.2750 }
+    },
+    {
+        "city": "Kolkata",
+        "country": "India",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 22.5726, "lng": 88.3639 }
+    },
+    {
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": -6.1750, "lng": 106.8283 }
+    },
+    {
+        "city": "Surabaya",
+        "country": "Indonesia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -7.2458, "lng": 112.7378 }
+    },
+    {
+        "city": "Bandung",
+        "country": "Indonesia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -6.9039, "lng": 107.6186 }
+    },
+    {
+        "city": "Medan",
+        "country": "Indonesia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 3.6667, "lng": 98.6667 }
+    },
+    {
+        "city": "Semarang",
+        "country": "Indonesia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -6.9667, "lng": 110.4167 }
+    },
+    {
+        "city": "Tehran",
+        "country": "Iran",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 35.6892, "lng": 51.3889 }
+    },
+    {
+        "city": "Mashhad",
+        "country": "Iran",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 36.3069, "lng": 59.6042 }
+    },
+    {
+        "city": "Isfahan",
+        "country": "Iran",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 32.6539, "lng": 51.6660 }
+    },
+    {
+        "city": "Karaj",
+        "country": "Iran",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 35.8327, "lng": 50.9915 }
+    },
+    {
+        "city": "Shiraz",
+        "country": "Iran",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 29.6100, "lng": 52.5425 }
+    },
+    {
+        "city": "Nairobi",
+        "country": "Kenya",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -1.2864, "lng": 36.8172 }
+    },
+    {
+        "city": "Mombasa",
+        "country": "Kenya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.0500, "lng": 39.6667 }
+    },
+    {
+        "city": "Kisumu",
+        "country": "Kenya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -0.1000, "lng": 34.7500 }
+    },
+    {
+        "city": "Nakuru",
+        "country": "Kenya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -0.2833, "lng": 36.0667 }
+    },
+    {
+        "city": "Eldoret",
+        "country": "Kenya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 0.5167, "lng": 35.2833 }
+    },
+     {
+        "city": "Monrovia",
+        "country": "Liberia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 6.3106, "lng": -10.8047 }
+    },
+    {
+        "city": "Gbarnga",
+        "country": "Liberia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 6.9956, "lng": -9.4722 }
+    },
+    {
+        "city": "Buchanan",
+        "country": "Liberia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 5.8808, "lng": -10.0467 }
+    },
+    {
+        "city": "Kakata",
+        "country": "Liberia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 6.5306, "lng": -10.3517 }
+    },
+    {
+        "city": "Voinjama",
+        "country": "Liberia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 8.4167, "lng": -9.7500 }
+    },
+    {
+        "city": "Tripoli",
+        "country": "Libya",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 32.8872, "lng": 13.1913 }
+    },
+    {
+        "city": "Benghazi",
+        "country": "Libya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 32.1167, "lng": 20.0667 }
+    },
+    {
+        "city": "Misrata",
+        "country": "Libya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 32.3778, "lng": 15.0901 }
+    },
+    {
+        "city": "Tarhuna",
+        "country": "Libya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 32.4333, "lng": 13.6333 }
+    },
+    {
+        "city": "Al Bayda",
+        "country": "Libya",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 32.7667, "lng": 21.7417 }
+    },
+    {
+        "city": "Antananarivo",
+        "country": "Madagascar",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -18.9386, "lng": 47.5214 }
+    },
+    {
+        "city": "Toamasina",
+        "country": "Madagascar",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -18.1500, "lng": 49.4167 }
+    },
+    {
+        "city": "Antsirabe",
+        "country": "Madagascar",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -19.8667, "lng": 47.0333 }
+    },
+    {
+        "city": "Mahajanga",
+        "country": "Madagascar",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -15.7167, "lng": 46.3167 }
+    },
+    {
+        "city": "Fianarantsoa",
+        "country": "Madagascar",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -21.4333, "lng": 47.0833 }
+    },
+    {
+        "city": "Lilongwe",
+        "country": "Malawi",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -13.9833, "lng": 33.7833 }
+    },
+    {
+        "city": "Blantyre",
+        "country": "Malawi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -15.7861, "lng": 35.0058 }
+    },
+    {
+        "city": "Mzuzu",
+        "country": "Malawi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -11.4500, "lng": 34.0333 }
+    },
+    {
+        "city": "Zomba",
+        "country": "Malawi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -15.3833, "lng": 35.3333 }
+    },
+    {
+        "city": "Kasungu",
+        "country": "Malawi",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -13.0333, "lng": 33.4833 }
+    },
+    {
+        "city": "Bamako",
+        "country": "Mali",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 12.6458, "lng": -7.9922 }
+    },
+    {
+        "city": "Sikasso",
+        "country": "Mali",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 11.3167, "lng": -5.6667 }
+    },
+    {
+        "city": "Mopti",
+        "country": "Mali",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 14.5000, "lng": -4.2000 }
+    },
+    {
+        "city": "Koutiala",
+        "country": "Mali",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.3833, "lng": -5.4667 }
+    },
+    {
+        "city": "Ségou",
+        "country": "Mali",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.4500, "lng": -6.2667 }
+    },
+    {
+        "city": "Nouakchott",
+        "country": "Mauritania",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 18.0858, "lng": -15.9785 }
+    },
+    {
+        "city": "Nouadhibou",
+        "country": "Mauritania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 20.9500, "lng": -17.0333 }
+    },
+    {
+        "city": "Rosso",
+        "country": "Mauritania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 16.5000, "lng": -15.8000 }
+    },
+    {
+        "city": "Zouerate",
+        "country": "Mauritania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 22.7333, "lng": -12.4667 }
+    },
+    {
+        "city": "Atar",
+        "country": "Mauritania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 20.5167, "lng": -13.0500 }
+    },
+    {
+        "city": "Port Louis",
+        "country": "Mauritius",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -20.1667, "lng": 57.5000 }
+    },
+    {
+        "city": "Beau Bassin-Rose Hill",
+        "country": "Mauritius",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -20.2333, "lng": 57.4667 }
+    },
+    {
+        "city": "Vacoas-Phoenix",
+        "country": "Mauritius",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -20.3000, "lng": 57.4833 }
+    },
+    {
+        "city": "Curepipe",
+        "country": "Mauritius",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -20.3167, "lng": 57.5167 }
+    },
+    {
+        "city": "Quatre Bornes",
+        "country": "Mauritius",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -20.2667, "lng": 57.4833 }
+    },
+    {
+        "city": "Rabat",
+        "country": "Morocco",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 34.0209, "lng": -6.8416 }
+    },
+    {
+        "city": "Casablanca",
+        "country": "Morocco",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 33.5731, "lng": -7.5898 }
+    },
+    {
+        "city": "Fes",
+        "country": "Morocco",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 34.0433, "lng": -5.0033 }
+    },
+    {
+        "city": "Marrakech",
+        "country": "Morocco",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 31.6295, "lng": -7.9811 }
+    },
+    {
+        "city": "Tangier",
+        "country": "Morocco",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 35.7767, "lng": -5.8039 }
+    },
+    {
+        "city": "Maputo",
+        "country": "Mozambique",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -25.9153, "lng": 32.5764 }
+    },
+    {
+        "city": "Matola",
+        "country": "Mozambique",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -25.9667, "lng": 32.4667 }
+    },
+    {
+        "city": "Beira",
+        "country": "Mozambique",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -19.8333, "lng": 34.8500 }
+    },
+    {
+        "city": "Nampula",
+        "country": "Mozambique",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -15.1167, "lng": 39.2667 }
+    },
+    {
+        "city": "Chimoio",
+        "country": "Mozambique",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -19.1167, "lng": 33.4500 }
+    },
+     {
+        "city": "Windhoek",
+        "country": "Namibia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -22.5700, "lng": 17.0836 }
+    },
+    {
+        "city": "Rundu",
+        "country": "Namibia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -17.9167, "lng": 19.7667 }
+    },
+    {
+        "city": "Walvis Bay",
+        "country": "Namibia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -22.9561, "lng": 14.5081 }
+    },
+    {
+        "city": "Swakopmund",
+        "country": "Namibia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -22.6833, "lng": 14.5333 }
+    },
+    {
+        "city": "Oshakati",
+        "country": "Namibia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -17.7833, "lng": 15.6833 }
+    },
+     {
+        "city": "Niamey",
+        "country": "Niger",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 13.5086, "lng": 2.1111 }
+    },
+    {
+        "city": "Zinder",
+        "country": "Niger",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.8053, "lng": 8.9883 }
+    },
+    {
+        "city": "Maradi",
+        "country": "Niger",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.4833, "lng": 7.1000 }
+    },
+    {
+        "city": "Agadez",
+        "country": "Niger",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 16.9959, "lng": 7.9828 }
+    },
+    {
+        "city": "Tahoua",
+        "country": "Niger",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 14.9000, "lng": 5.2667 }
+    },
+    {
+        "city": "Abuja",
+        "country": "Nigeria",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 9.0579, "lng": 7.4951 }
+    },
+    {
+        "city": "Lagos",
+        "country": "Nigeria",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 6.5244, "lng": 3.3792 }
+    },
+    {
+        "city": "Kano",
+        "country": "Nigeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 12.0000, "lng": 8.5167 }
+    },
+    {
+        "city": "Ibadan",
+        "country": "Nigeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.3964, "lng": 3.9167 }
+    },
+    {
+        "city": "Port Harcourt",
+        "country": "Nigeria",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.7500, "lng": 7.0000 }
+    },
+      {
+        "city": "Kigali",
+        "country": "Rwanda",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -1.9536, "lng": 30.0606 }
+    },
+    {
+        "city": "Butare",
+        "country": "Rwanda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -2.6000, "lng": 29.7500 }
+    },
+    {
+        "city": "Gitarama",
+        "country": "Rwanda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -2.0744, "lng": 29.7567 }
+    },
+    {
+        "city": "Ruhengeri",
+        "country": "Rwanda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -1.5000, "lng": 29.6333 }
+    },
+    {
+        "city": "Gisenyi",
+        "country": "Rwanda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -1.7000, "lng": 29.2500 }
+    },
+     {
+        "city": "São Tomé",
+        "country": "São Tomé and Príncipe",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 0.3365, "lng": 6.7274 }
+    },
+    {
+        "city": "Santo António",
+        "country": "São Tomé and Príncipe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 1.6333, "lng": 7.4167 }
+    },
+    {
+        "city": "Neves",
+        "country": "São Tomé and Príncipe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 0.3583, "lng": 6.5528 }
+    },
+    {
+        "city": "Santana",
+        "country": "São Tomé and Príncipe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 0.2583, "lng": 6.7417 }
+    },
+    {
+        "city": "Trindade",
+        "country": "São Tomé and Príncipe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 0.3000, "lng": 6.6833 }
+    },
+     {
+        "city": "Dakar",
+        "country": "Senegal",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 14.7319, "lng": -17.4572 }
+    },
+    {
+        "city": "Touba",
+        "country": "Senegal",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 14.8667, "lng": -15.8833 }
+    },
+    {
+        "city": "Thiès",
+        "country": "Senegal",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 14.7833, "lng": -16.9167 }
+    },
+    {
+        "city": "Kaolack",
+        "country": "Senegal",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 14.1500, "lng": -16.1000 }
+    },
+    {
+        "city": "Saint-Louis",
+        "country": "Senegal",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 16.0333, "lng": -16.5000 }
+    },
+    {
+        "city": "Victoria",
+        "country": "Seychelles",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -4.6167, "lng": 55.4500 }
+    },
+    {
+        "city": "Anse Boileau",
+        "country": "Seychelles",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.7167, "lng": 55.4833 }
+    },
+    {
+        "city": "Beau Vallon",
+        "country": "Seychelles",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.6167, "lng": 55.4333 }
+    },
+    {
+        "city": "Cascade",
+        "country": "Seychelles",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.6667, "lng": 55.5000 }
+    },
+    {
+        "city": "Takamaka",
+        "country": "Seychelles",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -4.7667, "lng": 55.5000 }
+    },
+    {
+        "city": "Freetown",
+        "country": "Sierra Leone",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 8.4833, "lng": -13.2333 }
+    },
+    {
+        "city": "Bo",
+        "country": "Sierra Leone",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.9564, "lng": -11.7400 }
+    },
+    {
+        "city": "Kenema",
+        "country": "Sierra Leone",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.8833, "lng": -11.1833 }
+    },
+    {
+        "city": "Makeni",
+        "country": "Sierra Leone",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 8.8833, "lng": -12.0500 }
+    },
+    {
+        "city": "Koidu",
+        "country": "Sierra Leone",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 8.6439, "lng": -10.9717 }
+    },
+    {
+        "city": "Mogadishu",
+        "country": "Somalia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 2.0408, "lng": 45.3425 }
+    },
+    {
+        "city": "Hargeisa",
+        "country": "Somalia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.5600, "lng": 44.0650 }
+    },
+    {
+        "city": "Kismayo",
+        "country": "Somalia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -0.3581, "lng": 42.5453 }
+    },
+    {
+        "city": "Berbera",
+        "country": "Somalia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 10.4356, "lng": 45.0164 }
+    },
+    {
+        "city": "Baidoa",
+        "country": "Somalia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 3.1167, "lng": 43.6500 }
+    },
+     {
+        "city": "Pretoria",
+        "country": "South Africa",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -25.7464, "lng": 28.1881 }
+    },
+    {
+        "city": "Cape Town",
+        "country": "South Africa",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -33.9258, "lng": 18.4232 }
+    },
+    {
+        "city": "Johannesburg",
+        "country": "South Africa",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -26.2044, "lng": 28.0416 }
+    },
+    {
+        "city": "Durban",
+        "country": "South Africa",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -29.8587, "lng": 31.0218 }
+    },
+    {
+        "city": "Port Elizabeth",
+        "country": "South Africa",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -33.9581, "lng": 25.6000 }
+    },
+     {
+        "city": "Juba",
+        "country": "South Sudan",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 4.8500, "lng": 31.6000 }
+    },
+    {
+        "city": "Malakal",
+        "country": "South Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.5333, "lng": 31.6500 }
+    },
+    {
+        "city": "Wau",
+        "country": "South Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.7000, "lng": 27.9833 }
+    },
+    {
+        "city": "Yei",
+        "country": "South Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 4.0833, "lng": 30.6667 }
+    },
+    {
+        "city": "Aweil",
+        "country": "South Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 8.7667, "lng": 27.4000 }
+    },
+     {
+        "city": "Khartoum",
+        "country": "Sudan",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 15.5000, "lng": 32.5600 }
+    },
+    {
+        "city": "Omdurman",
+        "country": "Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 15.6500, "lng": 32.4833 }
+    },
+    {
+        "city": "Port Sudan",
+        "country": "Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 19.6167, "lng": 37.2167 }
+    },
+    {
+        "city": "Kassala",
+        "country": "Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 15.4500, "lng": 36.4000 }
+    },
+    {
+        "city": "El Obeid",
+        "country": "Sudan",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 13.1833, "lng": 30.2167 }
+    },
+     {
+        "city": "Dodoma",
+        "country": "Tanzania",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -6.1833, "lng": 35.7500 }
+    },
+    {
+        "city": "Dar es Salaam",
+        "country": "Tanzania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -6.8167, "lng": 39.2833 }
+    },
+    {
+        "city": "Mwanza",
+        "country": "Tanzania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -2.5167, "lng": 32.9000 }
+    },
+    {
+        "city": "Arusha",
+        "country": "Tanzania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -3.3667, "lng": 36.6833 }
+    },
+    {
+        "city": "Zanzibar City",
+        "country": "Tanzania",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -6.1667, "lng": 39.2000 }
+    },
+    {
+        "city": "Dili",
+        "country": "Timor-Leste",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": -8.5536, "lng": 125.5783 }
+    },
+    {
+        "city": "Baucau",
+        "country": "Timor-Leste",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -8.4667, "lng": 126.4500 }
+    },
+    {
+        "city": "Maliana",
+        "country": "Timor-Leste",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -8.9833, "lng": 125.2167 }
+    },
+    {
+        "city": "Liquiçá",
+        "country": "Timor-Leste",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -8.5875, "lng": 125.3419 }
+    },
+    {
+        "city": "Same",
+        "country": "Timor-Leste",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": -9.0000, "lng": 125.6500 }
+    },
+    {
+        "city": "Lomé",
+        "country": "Togo",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 6.1319, "lng": 1.2228 }
+    },
+    {
+        "city": "Sokodé",
+        "country": "Togo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 8.9833, "lng": 1.1333 }
+    },
+    {
+        "city": "Kara",
+        "country": "Togo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 9.5500, "lng": 1.2000 }
+    },
+    {
+        "city": "Atakpamé",
+        "country": "Togo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 7.5333, "lng": 1.1333 }
+    },
+    {
+        "city": "Dapaong",
+        "country": "Togo",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 10.8667, "lng": 0.2000 }
+    },
+     {
+        "city": "Tunis",
+        "country": "Tunisia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 36.8008, "lng": 10.1800 }
+    },
+    {
+        "city": "Sfax",
+        "country": "Tunisia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 34.7400, "lng": 10.7600 }
+    },
+    {
+        "city": "Sousse",
+        "country": "Tunisia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 35.8333, "lng": 10.6333 }
+    },
+    {
+        "city": "Kairouan",
+        "country": "Tunisia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 35.6772, "lng": 10.1008 }
+    },
+    {
+        "city": "Gabès",
+        "country": "Tunisia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 33.8833, "lng": 10.1167 }
+    },
+     {
+        "city": "Ankara",
+        "country": "Turkey",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 39.9334, "lng": 32.8597 }
+    },
+    {
+        "city": "Istanbul",
+        "country": "Turkey",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 41.0082, "lng": 28.9784 }
+    },
+    {
+        "city": "Izmir",
+        "country": "Turkey",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 38.4127, "lng": 27.1384 }
+    },
+    {
+        "city": "Bursa",
+        "country": "Turkey",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 40.1833, "lng": 29.0667 }
+    },
+    {
+        "city": "Antalya",
+        "country": "Turkey",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 36.9000, "lng": 30.6833 }
+    },
+     {
+        "city": "Kampala",
+        "country": "Uganda",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": 0.3136, "lng": 32.5811 }
+    },
+    {
+        "city": "Entebbe",
+        "country": "Uganda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 0.0500, "lng": 32.4500 }
+    },
+    {
+        "city": "Jinja",
+        "country": "Uganda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 0.4244, "lng": 33.2042 }
+    },
+    {
+        "city": "Mbale",
+        "country": "Uganda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 1.0806, "lng": 34.1750 }
+    },
+    {
+        "city": "Gulu",
+        "country": "Uganda",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": 2.7667, "lng": 32.3000 }
+    },
+    {
+        "city": "Abu Dhabi",
+        "country": "United Arab Emirates",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 24.4667, "lng": 54.3667 }
+    },
+    {
+        "city": "Dubai",
+        "country": "United Arab Emirates",
+        "isCapital": false,
+        "isPopular": true,
+        "region": "asia",
+        "coordinates": { "lat": 25.2697, "lng": 55.3094 }
+    },
+    {
+        "city": "Sharjah",
+        "country": "United Arab Emirates",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 25.3575, "lng": 55.3908 }
+    },
+    {
+        "city": "Al Ain",
+        "country": "United Arab Emirates",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 24.2075, "lng": 55.7447 }
+    },
+    {
+        "city": "Ajman",
+        "country": "United Arab Emirates",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "asia",
+        "coordinates": { "lat": 25.3994, "lng": 55.4797 }
+    },
+    {
+        "city": "Lusaka",
+        "country": "Zambia",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -15.4167, "lng": 28.2833 }
+    },
+    {
+        "city": "Kitwe",
+        "country": "Zambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.8167, "lng": 28.2000 }
+    },
+    {
+        "city": "Ndola",
+        "country": "Zambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -12.9667, "lng": 28.6333 }
+    },
+    {
+        "city": "Kabwe",
+        "country": "Zambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -14.4333, "lng": 28.4500 }
+    },
+    {
+        "city": "Livingstone",
+        "country": "Zambia",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -17.8500, "lng": 25.8667 }
+    },
+    {
+        "city": "Harare",
+        "country": "Zimbabwe",
+        "isCapital": true,
+        "isPopular": true,
+        "region": "africa",
+        "coordinates": { "lat": -17.8292, "lng": 31.0522 }
+    },
+    {
+        "city": "Bulawayo",
+        "country": "Zimbabwe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -20.1667, "lng": 28.5667 }
+    },
+    {
+        "city": "Chitungwiza",
+        "country": "Zimbabwe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -18.0000, "lng": 31.1000 }
+    },
+    {
+        "city": "Mutare",
+        "country": "Zimbabwe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -18.9667, "lng": 32.6500 }
+    },
+    {
+        "city": "Gweru",
+        "country": "Zimbabwe",
+        "isCapital": false,
+        "isPopular": false,
+        "region": "africa",
+        "coordinates": { "lat": -19.4500, "lng": 29.8167 }
+    }
         ];
 
         // Game state
@@ -922,9 +5785,8 @@
         let includeCapitals = true;
         let includeMajorCities = true;
         let includePopularCities = false;
-        let difficulty = 'easy';
+        let gameMode = 'options';
         let autoNext = false;
-        let useMiles = false;
         let timerInterval;
         let seconds = 0;
         let correctCountriesForCurrentQuestion = [];
@@ -933,6 +5795,9 @@
         let maxGuesses = 6;
         let currentQuestionData = null;
         let validCountriesForCurrentQuestion = [];
+        let selectedOptionIndex = -1;
+        let answerSubmitted = false;
+        let isQuestionComplete = false; // New state variable to track question completion
 
         // DOM elements
         const questionText = document.getElementById('question-text');
@@ -958,15 +5823,33 @@
         const timerElement = document.getElementById('timer');
         const settingsToggle = document.querySelector('.settings-toggle');
         const settingsContent = document.querySelector('.settings-content');
+        const correctAnswerContainer = document.getElementById('correct-answer-container');
 
         // Event listeners
-        nextBtn.addEventListener('click', submitAnswer);
+        nextBtn.addEventListener('click', function() {
+            if (isQuestionComplete) {
+                nextQuestion();
+            } else {
+                submitAnswer();
+            }
+        });
+        
         restartBtn.addEventListener('click', restartGame);
         settingsToggle.addEventListener('click', toggleSettings);
         inputAnswer.addEventListener('input', handleAutocomplete);
-        inputAnswer.addEventListener('keypress', function(e) {
+        inputAnswer.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                submitAnswer();
+                // Only submit if we haven't reached max guesses and game isn't complete
+                if (!isQuestionComplete) {
+                    submitAnswer();
+                } else {
+                    nextQuestion();
+                }
+            } else if (e.key === 'Tab' && autocompleteDropdown.children.length > 0 && !autocompleteDropdown.classList.contains('hidden')) {
+                e.preventDefault();
+                inputAnswer.value = autocompleteDropdown.children[0].textContent;
+                autocompleteDropdown.classList.add('hidden');
+                nextBtn.disabled = false;
             }
         });
         inputAnswer.addEventListener('focus', function() {
@@ -985,17 +5868,14 @@
             checkbox.addEventListener('change', updateRegionSettings);
         });
 
+        document.getElementById('all-cities').addEventListener('change', updateAllCitiesSetting);
         document.getElementById('capitals').addEventListener('change', updateCityTypeSettings);
         document.getElementById('major-cities').addEventListener('change', updateCityTypeSettings);
         document.getElementById('popular-cities').addEventListener('change', updateCityTypeSettings);
         document.getElementById('auto-next').addEventListener('change', updateAutoNextSetting);
 
-        document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
-            radio.addEventListener('change', updateDifficultySettings);
-        });
-
-        document.querySelectorAll('input[name="units"]').forEach(radio => {
-            radio.addEventListener('change', updateUnitsSettings);
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener('change', updateGameMode);
         });
 
         // Initialize game
@@ -1012,6 +5892,8 @@
             questionsCount = 0;
             seconds = 0;
             currentGuesses = [];
+            answerSubmitted = false;
+            isQuestionComplete = false; // Reset question completion state
             
             updateStats();
             startTimer();
@@ -1069,13 +5951,61 @@
             document.getElementById('americas').checked = true;
             document.getElementById('oceania').checked = true;
             document.getElementById('capitals').checked = true;
-            document.getElementById('major-cities').checked = false;
+            document.getElementById('major-cities').checked = true;
             document.getElementById('popular-cities').checked = true;
+            document.getElementById('all-cities').checked = true;
             
             selectedRegions = ['europe', 'asia', 'africa', 'americas', 'oceania'];
             includeCapitals = true;
-            includeMajorCities = false;
+            includeMajorCities = true;
             includePopularCities = true;
+        }
+
+        // Update all cities setting
+        function updateAllCitiesSetting() {
+            const allChecked = document.getElementById('all-cities').checked;
+            
+            if (allChecked) {
+                document.getElementById('capitals').checked = true;
+                document.getElementById('major-cities').checked = true;
+                document.getElementById('popular-cities').checked = true;
+            }
+            
+            // Update city type settings
+            updateCityTypeSettings();
+        }
+
+        // Update city type settings
+        function updateCityTypeSettings() {
+            const allChecked = document.getElementById('all-cities').checked;
+            const capitalsChecked = document.getElementById('capitals').checked;
+            const majorCitiesChecked = document.getElementById('major-cities').checked;
+            const popularCitiesChecked = document.getElementById('popular-cities').checked;
+            
+            // Update "All" checkbox based on individual checkboxes
+            if (!allChecked && capitalsChecked && majorCitiesChecked && popularCitiesChecked) {
+                document.getElementById('all-cities').checked = true;
+            } else if (allChecked && (!capitalsChecked || !majorCitiesChecked || !popularCitiesChecked)) {
+                document.getElementById('all-cities').checked = false;
+            }
+            
+            // Prevent unchecking all
+            if (!capitalsChecked && !majorCitiesChecked && !popularCitiesChecked) {
+                const checkbox = event?.target;
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+                return;
+            }
+            
+            includeCapitals = capitalsChecked;
+            includeMajorCities = majorCitiesChecked;
+            includePopularCities = popularCitiesChecked;
+            
+            // Refresh questions with new filters
+            filterQuestions();
+            currentQuestion = 0;
+            showQuestion();
         }
 
         // Start game timer
@@ -1096,6 +6026,8 @@
 
         // Show current question
         function showQuestion() {
+            isQuestionComplete = false; // Reset for new question
+            
             if (currentQuestion >= questions.length) {
                 questions = shuffleArray(questions);
                 currentQuestion = 0;
@@ -1110,33 +6042,91 @@
                 .filter(item => item.city === currentQuestionData.city)
                 .map(item => item.country);
             
-            // For hard mode, get all valid countries that could be options
+            // For typing mode, get all valid countries that could be options
             validCountriesForCurrentQuestion = [...new Set(gameData.map(item => item.country))];
             
             // Clear previous options and guesses
             optionsContainer.innerHTML = '';
             guessesContainer.innerHTML = '';
+            correctAnswerContainer.innerHTML = '';
+            correctAnswerContainer.classList.add('hidden');
             inputContainer.classList.add('hidden');
             inputAnswer.value = '';
             currentGuesses = [];
+            answerSubmitted = false;
+            selectedOptionIndex = -1;
             
-            if (difficulty === 'hard') {
+            if (gameMode === 'typing') {
                 inputContainer.classList.remove('hidden');
                 inputAnswer.focus();
+                maxGuesses = 6;
             } else {
                 let options = getOptions(currentQuestionData);
                 
-                options.forEach(option => {
+                options.forEach((option, index) => {
                     const button = document.createElement('button');
                     button.className = 'option-btn';
                     button.textContent = option;
-                    button.addEventListener('click', () => selectOption(option));
+                    button.addEventListener('click', () => selectOption(index));
                     optionsContainer.appendChild(button);
                 });
+                
+                // Add keyboard navigation for options
+                document.addEventListener('keydown', handleOptionsNavigation);
+                
+                maxGuesses = 1; // Only 1 chance in options mode
             }
             
-            nextBtn.textContent = currentGuesses.length === 0 ? "Submit First Guess" : "Submit Answer";
+            nextBtn.textContent = "Submit Answer";
             nextBtn.disabled = true;
+        }
+
+        // Handle keyboard navigation for options
+        function handleOptionsNavigation(e) {
+            if (gameMode !== 'options' || isQuestionComplete) return;
+            
+            const optionButtons = document.querySelectorAll('.option-btn');
+            if (optionButtons.length === 0) return;
+            
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                selectedOptionIndex = (selectedOptionIndex - 1 + optionButtons.length) % optionButtons.length;
+                updateSelectedOption();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                selectedOptionIndex = (selectedOptionIndex + 1) % optionButtons.length;
+                updateSelectedOption();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedOptionIndex >= 0) {
+                    if (!isQuestionComplete) {
+                        submitAnswer();
+                    } else {
+                        nextQuestion();
+                    }
+                }
+            }
+        }
+
+        // Update the selected option visually
+        function updateSelectedOption() {
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach((btn, index) => {
+                if (index === selectedOptionIndex) {
+                    btn.classList.add('selected');
+                    btn.focus();
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            if (selectedOptionIndex >= 0) {
+                nextBtn.disabled = false;
+                currentGuesses = [optionButtons[selectedOptionIndex].textContent];
+            } else {
+                nextBtn.disabled = true;
+                currentGuesses = [];
+            }
         }
 
         // Get options for current question
@@ -1148,13 +6138,8 @@
             // Remove correct answers from all countries
             allCountries = allCountries.filter(country => !correctCountriesForCurrentQuestion.includes(country));
             
-            // Get incorrect options based on difficulty
-            let incorrectOptionsNeeded;
-            if (difficulty === 'easy') {
-                incorrectOptionsNeeded = Math.max(0, 3 - options.length); // Total 3 options
-            } else { // medium
-                incorrectOptionsNeeded = Math.max(0, 6 - options.length); // Total 6 options
-            }
+            // Get incorrect options (always 6 total options)
+            let incorrectOptionsNeeded = Math.max(0, 6 - options.length);
             
             // Get random incorrect options
             const incorrectOptions = shuffleArray(allCountries).slice(0, incorrectOptionsNeeded);
@@ -1165,7 +6150,7 @@
             return options;
         }
 
-        // Handle autocomplete for hard mode
+        // Handle autocomplete for typing mode
         function handleAutocomplete() {
             const input = inputAnswer.value.toLowerCase();
             autocompleteDropdown.innerHTML = '';
@@ -1206,27 +6191,26 @@
             nextBtn.disabled = false;
         }
 
-        // Handle option selection (for multiple choice)
-        function selectOption(selectedOption) {
-            // Only allow selection of valid options
-            const validOptions = [...correctCountriesForCurrentQuestion, ...getIncorrectOptions()];
-            if (validOptions.includes(selectedOption)) {
-                nextBtn.disabled = false;
-                currentGuesses = [selectedOption];
-            }
+        // Handle option selection (for options mode)
+        function selectOption(index) {
+            const optionButtons = document.querySelectorAll('.option-btn');
+            
+            // Deselect all options
+            optionButtons.forEach(btn => btn.classList.remove('selected'));
+            
+            // Select the clicked option
+            optionButtons[index].classList.add('selected');
+            selectedOptionIndex = index;
+            
+            nextBtn.disabled = false;
+            currentGuesses = [optionButtons[index].textContent];
         }
 
-        // Get incorrect options for current question
-        function getIncorrectOptions() {
-            let allCountries = [...new Set(gameData.map(item => item.country))];
-            return allCountries.filter(country => !correctCountriesForCurrentQuestion.includes(country));
-        }
-
-        // Submit answer (for both multiple choice and input)
+        // Submit answer (for both modes)
         function submitAnswer() {
             let userAnswer;
             
-            if (difficulty === 'hard') {
+            if (gameMode === 'typing') {
                 userAnswer = inputAnswer.value.trim();
                 if (!userAnswer) return;
                 
@@ -1254,11 +6238,12 @@
             );
             
             // Add to guesses (using properly capitalized version)
-            const correctCaseAnswer = correctCountriesForCurrentQuestion.find(country => 
+            const correctCaseAnswer = validCountriesForCurrentQuestion.find(country => 
                 country.toLowerCase() === userAnswer.toLowerCase()
             ) || userAnswer;
             
             currentGuesses.push(correctCaseAnswer);
+            answerSubmitted = true;
             
             // Calculate distance for incorrect guesses
             let distance = null;
@@ -1275,36 +6260,66 @@
                         guessedCountryData.coordinates.lat,
                         guessedCountryData.coordinates.lng
                     );
-                    
-                    if (useMiles) {
-                        distance = kilometersToMiles(distance);
-                    }
                 }
             }
             
             // Display guess
             displayGuess(correctCaseAnswer, isCorrect, distance);
             
+            // Show correct answer if incorrect after max guesses
+            if (!isCorrect && currentGuesses.length >= maxGuesses + 1) {
+                showCorrectAnswer();
+            }
+            
             // Update game state if correct or max guesses reached
             if (isCorrect || currentGuesses.length >= maxGuesses + 1) {
                 updateGameState(isCorrect);
                 
+                // Mark question as complete
+                isQuestionComplete = true;
+                
+                // Update button text
+                nextBtn.textContent = "Next Question";
+                nextBtn.disabled = false;
+                
+                // In options mode, highlight correct answer
+                if (gameMode === 'options') {
+                    highlightCorrectAnswer();
+                }
+                
+                // Auto-advance to next question if enabled
                 if (autoNext) {
                     setTimeout(() => {
                         nextQuestion();
                     }, 1000);
-                } else {
-                    nextBtn.textContent = "Next Question";
-                    nextBtn.disabled = false;
                 }
             } else {
-                if (difficulty === 'hard') {
+                if (gameMode === 'typing') {
                     inputAnswer.value = '';
                     inputAnswer.focus();
                 }
                 nextBtn.textContent = `Submit Guess ${currentGuesses.length + 1}/${maxGuesses + 1}`;
                 nextBtn.disabled = true;
+                answerSubmitted = false; // Reset for next guess
             }
+        }
+
+        // Show correct answer
+        function showCorrectAnswer() {
+            correctAnswerContainer.textContent = `Correct answer: ${correctCountriesForCurrentQuestion.join(' or ')}`;
+            correctAnswerContainer.classList.remove('hidden');
+        }
+
+        // Highlight correct answer in options mode
+        function highlightCorrectAnswer() {
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach(btn => {
+                if (correctCountriesForCurrentQuestion.includes(btn.textContent)) {
+                    btn.classList.add('correct');
+                } else if (currentGuesses.includes(btn.textContent)) {
+                    btn.classList.add('incorrect');
+                }
+            });
         }
 
         // Display a guess with distance indicator
@@ -1328,13 +6343,9 @@
                     gameData.find(item => item.country.toLowerCase() === country.toLowerCase() && item.city !== currentQuestionData.city).coordinates.lng
                 );
                 
-                const distanceText = useMiles ? 
-                    `${Math.round(distance)} miles` : 
-                    `${Math.round(distance)} km`;
-                
                 distanceElement.innerHTML = `
                     <span class="distance-arrow">${arrow}</span>
-                    <span>${distanceText}</span>
+                    <span>${Math.round(distance)} km</span>
                 `;
             } else {
                 distanceElement.textContent = 'Unknown distance';
@@ -1356,11 +6367,6 @@
                 Math.sin(dLon/2) * Math.sin(dLon/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
-        }
-
-        // Convert kilometers to miles
-        function kilometersToMiles(km) {
-            return km * 0.621371;
         }
 
         // Get direction arrow based on coordinates
@@ -1391,8 +6397,11 @@
             autocompleteDropdown.classList.add('hidden');
             
             // Update button text
-            nextBtn.textContent = difficulty === 'hard' ? "Submit Answer" : "Submit First Guess";
+            nextBtn.textContent = gameMode === 'typing' ? "Submit Answer" : "Submit Answer";
             nextBtn.disabled = true;
+            
+            // Remove keyboard navigation listener if it exists
+            document.removeEventListener('keydown', handleOptionsNavigation);
         }
 
         // Update game state after answer
@@ -1485,25 +6494,9 @@
             showQuestion();
         }
 
-        // Update city type settings
-        function updateCityTypeSettings() {
-            const capitalsChecked = document.getElementById('capitals').checked;
-            const majorCitiesChecked = document.getElementById('major-cities').checked;
-            const popularCitiesChecked = document.getElementById('popular-cities').checked;
-            
-            // Prevent unchecking all
-            if (!capitalsChecked && !majorCitiesChecked && !popularCitiesChecked) {
-                const checkbox = event.target;
-                checkbox.checked = true;
-                return;
-            }
-            
-            includeCapitals = capitalsChecked;
-            includeMajorCities = majorCitiesChecked;
-            includePopularCities = popularCitiesChecked;
-            
-            // Refresh questions with new filters
-            filterQuestions();
+        // Update game mode
+        function updateGameMode() {
+            gameMode = document.querySelector('input[name="mode"]:checked').value;
             currentQuestion = 0;
             showQuestion();
         }
@@ -1511,18 +6504,6 @@
         // Update auto-next setting
         function updateAutoNextSetting() {
             autoNext = document.getElementById('auto-next').checked;
-        }
-
-        // Update difficulty settings
-        function updateDifficultySettings() {
-            difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-            currentQuestion = 0;
-            showQuestion();
-        }
-
-        // Update units settings
-        function updateUnitsSettings() {
-            useMiles = document.querySelector('input[name="units"]:checked').value === 'miles';
         }
 
         // Utility function to shuffle array
