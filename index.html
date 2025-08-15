@@ -578,7 +578,7 @@
     <script>
         // Sample game data with coordinates and popularity markers
         const gameData = [
-             {
+            {
                 city: "Basra",
                 country: "Iraq",
                 isCapital: false,
@@ -5797,7 +5797,7 @@
         let validCountriesForCurrentQuestion = [];
         let selectedOptionIndex = -1;
         let answerSubmitted = false;
-        let isQuestionComplete = false; // New state variable to track question completion
+        let isQuestionComplete = false;
 
         // DOM elements
         const questionText = document.getElementById('question-text');
@@ -5893,7 +5893,7 @@
             seconds = 0;
             currentGuesses = [];
             answerSubmitted = false;
-            isQuestionComplete = false; // Reset question completion state
+            isQuestionComplete = false;
             
             updateStats();
             startTimer();
@@ -6026,7 +6026,7 @@
 
         // Show current question
         function showQuestion() {
-            isQuestionComplete = false; // Reset for new question
+            isQuestionComplete = false;
             
             if (currentQuestion >= questions.length) {
                 questions = shuffleArray(questions);
@@ -6336,11 +6336,14 @@
             if (isCorrect) {
                 distanceElement.textContent = 'Correct!';
             } else if (distance !== null) {
+                // FIXED: Reversed the coordinates to get the correct arrow direction
                 const arrow = getDirectionArrow(
-                    currentQuestionData.coordinates.lat,
-                    currentQuestionData.coordinates.lng,
+                    // Guessed city coordinates
                     gameData.find(item => item.country.toLowerCase() === country.toLowerCase() && item.city !== currentQuestionData.city).coordinates.lat,
-                    gameData.find(item => item.country.toLowerCase() === country.toLowerCase() && item.city !== currentQuestionData.city).coordinates.lng
+                    gameData.find(item => item.country.toLowerCase() === country.toLowerCase() && item.city !== currentQuestionData.city).coordinates.lng,
+                    // Target city coordinates
+                    currentQuestionData.coordinates.lat,
+                    currentQuestionData.coordinates.lng
                 );
                 
                 distanceElement.innerHTML = `
