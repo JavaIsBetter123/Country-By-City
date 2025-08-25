@@ -581,7 +581,7 @@
     <script>
         // Sample game data with coordinates and popularity markers
         const gameData = [
-            {
+             {
                 city: "Basra",
                 country: "Iraq",
                 isCapital: false,
@@ -7098,7 +7098,6 @@
         inputAnswer.addEventListener('input', handleAutocomplete);
         inputAnswer.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                // Only submit if we haven't reached max guesses and game isn't complete
                 if (!isQuestionComplete) {
                     submitAnswer();
                 } else {
@@ -7390,20 +7389,41 @@
             }
         }
 
-        // Get options for current question
+        // Get options for current question - UPDATED VERSION
         function getOptions(question) {
-            let options = [...correctCountriesForCurrentQuestion]; // Start with all correct answers
+            // Get all countries from selected regions
+            let regionCountries = [...new Set(gameData
+                .filter(item => selectedRegions.includes(item.region))
+                .map(item => item.country)
+            )];
             
-            let allCountries = [...new Set(gameData.map(item => item.country))];
+            // Start with all correct answers (even if not in selected regions)
+            let options = [...correctCountriesForCurrentQuestion];
             
-            // Remove correct answers from all countries
-            allCountries = allCountries.filter(country => !correctCountriesForCurrentQuestion.includes(country));
+            // Remove correct answers from region countries to get incorrect options pool
+            let incorrectPool = regionCountries.filter(country => 
+                !correctCountriesForCurrentQuestion.includes(country)
+            );
+            
+            // Remove duplicates from options (in case of multiple correct answers)
+            options = [...new Set(options)];
             
             // Get incorrect options (always 6 total options)
             let incorrectOptionsNeeded = Math.max(0, 6 - options.length);
             
+            // If we don't have enough incorrect options, add some from outside selected regions
+            if (incorrectOptionsNeeded > incorrectPool.length) {
+                let allCountries = [...new Set(gameData.map(item => item.country))];
+                let additionalPool = allCountries.filter(country => 
+                    !correctCountriesForCurrentQuestion.includes(country) && 
+                    !incorrectPool.includes(country)
+                );
+                
+                incorrectPool = [...incorrectPool, ...shuffleArray(additionalPool).slice(0, incorrectOptionsNeeded - incorrectPool.length)];
+            }
+            
             // Get random incorrect options
-            const incorrectOptions = shuffleArray(allCountries).slice(0, incorrectOptionsNeeded);
+            const incorrectOptions = shuffleArray(incorrectPool).slice(0, incorrectOptionsNeeded);
             
             // Combine and shuffle options
             options = shuffleArray([...options, ...incorrectOptions]);
